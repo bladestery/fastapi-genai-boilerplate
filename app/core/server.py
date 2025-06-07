@@ -7,10 +7,10 @@ from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.apis import api_routers
+from app.core.config import settings
 from app.core.exceptions import HandleExceptions
-from app.core.settings import settings
-
-from .lifetime import lifespan
+from app.core.lifespan import lifespan
+from app.core.middlewares import LoggingMiddleware, SlowAPIMiddleware
 
 
 def configure_routes(app: FastAPI) -> None:
@@ -28,6 +28,8 @@ def configure_middleware() -> List[Middleware]:
             allow_methods=["*"],
             allow_headers=["*"],
         ),
+        Middleware(LoggingMiddleware),
+        Middleware(SlowAPIMiddleware),
     ]
     return cors_middleware
 

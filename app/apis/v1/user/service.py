@@ -1,8 +1,8 @@
-"""User controller"""
+"""User service"""
 
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Tuple
 
-from .request import CreateUserRequest
+from .models import CreateUserRequest
 
 
 class UserService:
@@ -12,14 +12,15 @@ class UserService:
         """Initialize the service."""
         pass
 
-    async def get_user_service(self, user_id: int) -> Tuple[Any, str, int]:
-        """Retrieve user details."""
-        payload, message, status_code = {}, "User details retrieved successfully", 200
-        return payload, message, status_code
-
     async def create_user_service(
         self, request_params: CreateUserRequest
-    ) -> Union[Any, str, int]:
+    ) -> Tuple[Any, str, int]:
         """Create a new user."""
-        payload, message, status_code = {}, "User created successfully", 201
+        payload = {
+            "user_id": 1,
+            "name": request_params.name,
+            "email": request_params.email,
+        }
+        message = "User created successfully"
+        status_code = 201
         return payload, message, status_code

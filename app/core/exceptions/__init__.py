@@ -1,4 +1,4 @@
-"""Init Exceptions"""
+"""Init module for Exceptions"""
 
 from .base import CustomException
 from .handle_exception import HandleExceptions

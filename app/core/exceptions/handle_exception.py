@@ -4,11 +4,12 @@ from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import HTTPException, RequestValidationError
-from fastapi.responses import JSONResponse
+from loguru import logger
+from slowapi.errors import RateLimitExceeded
 
-from app import logger
 from app.constants import messages
 from app.core.exceptions import CustomException
+from app.core.responses import AppJSONResponse
 
 
 class HandleExceptions:
@@ -21,6 +22,7 @@ class HandleExceptions:
         self._handle_pydantic_exception()
         self._handle_fastapi_http_exception()
         self._handle_default_exception()
+        self._handle_rate_limit_exception()
 
     def _handle_custom_exception(self):
         """Handle custom exceptions."""
@@ -56,6 +58,19 @@ class HandleExceptions:
                 status_code=exc.status_code, message=exc.detail
             )
 
+    def _handle_rate_limit_exception(self):
+        """Handle rate limit exceeded exceptions."""
+
+        @self.app.exception_handler(RateLimitExceeded)
+        async def rate_limit_exception_handler(
+            request: Request, exc: RateLimitExceeded
+        ):
+            return await self._create_json_response(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                message=messages.RATE_LIMIT_ERROR,
+                error_log=str(exc),
+            )
+
     def _handle_default_exception(self):
         """Handle all other exceptions."""
 
@@ -67,16 +82,11 @@ class HandleExceptions:
             )
 
     async def _create_json_response(
-        self, status_code: int, message: str, payload: Any = None, error_log: str = ""
-    ) -> JSONResponse:
-        """Create a JSON response for exceptions."""
+        self, status_code: int, message: str, payload: Any = None, error_log: Any = None
+    ) -> AppJSONResponse:
+        """Create a JSON response for exceptions with centralized logging."""
         if error_log:
             logger.error(error_log)
-        return JSONResponse(
-            status_code=status_code,
-            content={
-                "payload": payload,
-                "message": message,
-                "status": status_code,
-            },
+        return AppJSONResponse(
+            data=payload, message=message, status_code=status_code, error=error_log
         )

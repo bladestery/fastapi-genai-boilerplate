@@ -1,29 +1,37 @@
-"""User controller"""
+"""Route for user"""
 
-from .request import CreateUserRequest
-from .response import UserJSONResponse
+from fastapi import Depends, Request
+from fastapi.routing import APIRouter
+from fastapi_utils.cbv import cbv
+
+from app.core import limiter
+from app.core.responses import AppJSONResponse
+
+from .models import CreateUserRequest
 from .service import UserService
 
+router = APIRouter()
 
-class UserController:
-    """User controller."""
 
-    def __init__(self) -> None:
-        """Initialize the controller."""
-        pass
+def common_dependency():
+    """Common dependency."""
 
-    async def get_user_controller(self, user_id: int) -> UserJSONResponse:
-        """Retrieve user details."""
-        payload, message, status_code = await UserService().get_user_service(
-            user_id=user_id
-        )
-        return UserJSONResponse(
-            payload=payload, message=message, status_code=status_code
-        )
+    return {"msg": "This is a dependency"}
 
-    async def create_user_controller(self, request_params: CreateUserRequest):
+
+@cbv(router)
+class UserRoute:
+    """User-related routes."""
+
+    def __init__(self, common_dep=Depends(common_dependency)):
+        self.common_dep = common_dep
+        self.service = UserService()
+
+    @router.post("/user", response_class=AppJSONResponse)
+    @limiter.limit("5/minute")
+    async def create_user(self, request: Request, request_params: CreateUserRequest):
         """Create a new user."""
-        payload, message, status_code = {}, "User created successfully", 201
-        return UserJSONResponse(
-            payload=payload, message=message, status_code=status_code
+        data, message, status_code = await self.service.create_user_service(
+            request_params=request_params
         )
+        return AppJSONResponse(data=data, message=message, status_code=status_code)

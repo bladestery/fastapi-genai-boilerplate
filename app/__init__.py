@@ -1,7 +1,5 @@
 """Init app modules"""
 
-from loguru import logger
+from app.core.config import settings
 
-from app.core.settings import settings
-
-__all_ = ["logger", "settings"]
+__all__ = ["settings"]

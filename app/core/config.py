@@ -16,6 +16,15 @@ class LogLevel(str, enum.Enum):
     FATAL = "FATAL"
 
 
+class AppEnvs(str, enum.Enum):
+    """Application envs"""
+
+    DEVELOPMENT = "development"
+    QA = "qa"
+    DEMO = "demo"
+    PRODUCTION = "production"
+
+
 class AppConfig(BaseSettings):
     """Primary configuration settings for the application."""
 
@@ -24,10 +33,10 @@ class AppConfig(BaseSettings):
 
     # Application metadata
     release_version: str = "0.0.1"
-    environment: str = "dev"
+    environment: AppEnvs = AppEnvs.DEVELOPMENT
     host: str = "0.0.0.0"
-    port: int = 8001
-    worker_count: int = 1
+    port: int = 8002
+    worker_count: int | None = None
 
     class Config:
         """Configuration for environment file loading."""

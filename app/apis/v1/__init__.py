@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from .user.route import router as user_router
+from .user.controller import router as user_router
 
 # Define and configure versioned API routers
 v1_routers = APIRouter()
