@@ -23,7 +23,7 @@ def add_request_id_to_log(record: dict) -> None:
 
 
 # Configure logger to use the request ID patch
-logger.configure(patcher=add_request_id_to_log)
+logger.configure(patcher=add_request_id_to_log)  # type: ignore
 
 # Define log format
 LOG_FORMAT = (
