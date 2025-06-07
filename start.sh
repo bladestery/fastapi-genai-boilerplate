@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# Production startup script using gunicorn with Uvicorn workers
+# Load environment variables from .env
+set -a
+source .env
+set +a
 
+# Default values if not set in .env
+HOST="${HOST:-0.0.0.0}"
+PORT="${PORT:-8000}"
 APP_MODULE="app.core.server:app"
-HOST="0.0.0.0"
-PORT="8002"
 WORKERS=$(python3 -c "import multiprocessing; print(multiprocessing.cpu_count() * 2 + 1)")
 
 echo "🚀 Starting FastAPI app with Gunicorn on $HOST:$PORT with $WORKERS workers..."
