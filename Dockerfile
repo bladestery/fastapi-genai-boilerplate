@@ -22,6 +22,9 @@ RUN echo "📦 [2/7] Installing system dependencies and Poetry..."
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    gcc \
+    python3-dev \
+    libc-dev \
  && curl -sSL https://install.python-poetry.org | python3 - \
  && apt-get remove -y curl \
  && apt-get autoremove -y \
@@ -46,7 +49,10 @@ COPY pyproject.toml poetry.lock* /app/
 
 RUN echo "📦 [4/7] Installing Python dependencies (main group only)..."
 
-RUN poetry install --no-root --only main
+# Force Poetry to create virtualenv inside the project folder
+RUN poetry config virtualenvs.in-project true
+
+RUN poetry install --no-root
 
 # ===============================
 # 🔹 [5/7] Final Image Build

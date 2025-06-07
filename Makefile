@@ -1,11 +1,12 @@
 # Project Metadata
 PROJECT_NAME := fastapi_boilerplate
-ENV_FILE := .env
+ENV_FILE := ".env"
+PORT := $(shell grep ^PORT= $(ENV_FILE) | cut -d '=' -f2)
 
 # Commands
 PYTHON := poetry run python
 POETRY := poetry
-UVICORN := $(POETRY) run uvicorn app.main:app
+UVICORN := $(PYTHON) main.py
 ISORT := $(POETRY) run isort .
 BLACK := $(POETRY) run black .
 RUFF := $(POETRY) run ruff .
@@ -23,7 +24,7 @@ run: ## Run FastAPI app with reload (Dev)
 
 .PHONY: start
 start: ## Run FastAPI app for production
-	$(UVICORN) --host 0.0.0.0 --port 8000 --env-file $(ENV_FILE)
+	$(UVICORN) --env-file $(ENV_FILE)
 
 .PHONY: shell
 shell: ## Open Python shell with poetry env
@@ -65,3 +66,13 @@ clean: ## Clean __pycache__ and .pytest_cache
 .PHONY: help
 help: ## Show help info
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-18s\033[0m %s\n", $$1, $$2}'
+
+## ----------- Docker -----------
+
+.PHONY: docker-build
+docker-build: ## Build the docker image for the project
+	docker build -t $(PROJECT_NAME):latest .
+
+.PHONY: docker-run
+docker-run: ## Run the docker container from the image
+	docker run --rm -p ${PORT}:${PORT} $(PROJECT_NAME):latest
