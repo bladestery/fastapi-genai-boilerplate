@@ -61,7 +61,7 @@ test: ## Run tests
 .PHONY: clean
 clean: ## Clean __pycache__ and .pytest_cache
 	find . -type d -name "__pycache__" -exec rm -r {} +
-	rm -rf .pytest_cache .mypy_cache
+	rm -rf .pytest_cache .mypy_cache .ruff_cache
 
 .PHONY: help
 help: ## Show help info
