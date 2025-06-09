@@ -12,10 +12,10 @@ from loguru import logger
 def trace(
     name: str = "", log_args: bool = True, log_result: bool = True, max_len: int = 300
 ):
-    """Trace and log function execution with rich color logs and a unique function ID."""
+    """Trace and log function execution with a unique function ID."""
 
     def decorator(func):
-        """Decorator that wraps sync or async functions with logging logic."""
+        """Wrap function to add tracing and logging."""
 
         def format_args(args, kwargs):
             """Format function arguments for logging."""
@@ -35,16 +35,14 @@ def trace(
 
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
-            """Async wrapper to log function start, args, result, end, and exceptions."""
+            """Async wrapper to log execution details and handle exceptions."""
             function_id = str(uuid.uuid4())
             log = logger.bind(function_id=function_id)
             label = name or func.__qualname__
 
             log.info(f"🔍 [{label}] START")
-
             if log_args:
-                arg_str = format_args(args, kwargs)
-                log.debug(f"📥 [{label}] ARGS: {arg_str}")
+                log.debug(f"📥 [{label}] ARGS: {format_args(args, kwargs)}")
 
             start = time.perf_counter()
             try:
@@ -52,8 +50,7 @@ def trace(
                 duration = time.perf_counter() - start
 
                 if log_result:
-                    result_str = format_result(result)
-                    log.debug(f"📤 [{label}] RESULT: {result_str}")
+                    log.debug(f"📤 [{label}] RESULT: {format_result(result)}")
 
                 log.info(f"✅ [{label}] END ({duration:.2f}s)")
                 return result
@@ -63,16 +60,14 @@ def trace(
 
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
-            """Sync wrapper to log function start, args, result, end, and exceptions."""
+            """Sync wrapper to log execution details and handle exceptions."""
             function_id = str(uuid.uuid4())
             log = logger.bind(function_id=function_id)
             label = name or func.__qualname__
 
             log.info(f"🔍 [{label}] START")
-
             if log_args:
-                arg_str = format_args(args, kwargs)
-                log.debug(f"📥 [{label}] ARGS: {arg_str}")
+                log.debug(f"📥 [{label}] ARGS: {format_args(args, kwargs)}")
 
             start = time.perf_counter()
             try:
@@ -80,8 +75,7 @@ def trace(
                 duration = time.perf_counter() - start
 
                 if log_result:
-                    result_str = format_result(result)
-                    log.debug(f"📤 [{label}] RESULT: {result_str}")
+                    log.debug(f"📤 [{label}] RESULT: {format_result(result)}")
 
                 log.info(f"✅ [{label}] END ({duration:.2f}s)")
                 return result

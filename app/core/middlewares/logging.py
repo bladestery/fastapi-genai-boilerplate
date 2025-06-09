@@ -20,6 +20,7 @@ APP_ENV = settings.environment.lower()
 def add_request_id_to_log(record: dict) -> None:
     """Inject request ID and default function ID into log records."""
     record["extra"]["request_id"] = request_id_ctx_var.get() or "N/A"
+    record["extra"].setdefault("function_id", "N/A")
 
 
 # Configure logger with context patcher
@@ -30,6 +31,7 @@ LOG_FORMAT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
     "<level>{level:<8}</level> | "
     "RequestID=<cyan>{extra[request_id]}</cyan> | "
+    "FuncID=<magenta>{extra[function_id]}</magenta> | "
     "<level>{message}</level>\n"
 )
 
