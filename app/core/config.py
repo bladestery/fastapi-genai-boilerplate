@@ -14,6 +14,7 @@ class LogLevel(str, enum.Enum):
     WARNING = "WARNING"
     ERROR = "ERROR"
     FATAL = "FATAL"
+    TRACE = "TRACE"
 
 
 class AppEnvs(str, enum.Enum):

@@ -9,9 +9,7 @@ import uuid
 from loguru import logger
 
 
-def trace(
-    name: str = "", log_args: bool = True, log_result: bool = True, max_len: int = 300
-):
+def trace(name: str = "", log_args: bool = True, log_result: bool = True):
     """Trace and log function execution with a unique function ID."""
 
     def decorator(func):
@@ -22,14 +20,14 @@ def trace(
             try:
                 return json.dumps(
                     {"args": [str(a) for a in args], "kwargs": kwargs}, default=str
-                )[:max_len]
+                )
             except Exception:
                 return "[Unserializable]"
 
         def format_result(result):
             """Format function result for logging."""
             try:
-                return json.dumps(result, default=str)[:max_len]
+                return json.dumps(result, default=str)
             except Exception:
                 return "[Unserializable]"
 
@@ -40,9 +38,9 @@ def trace(
             log = logger.bind(function_id=function_id)
             label = name or func.__qualname__
 
-            log.info(f"🔍 [{label}] START")
+            log.trace(f"🔍 [{label}] START")
             if log_args:
-                log.debug(f"📥 [{label}] ARGS: {format_args(args, kwargs)}")
+                log.trace(f"📥 [{label}] ARGS: {format_args(args, kwargs)}")
 
             start = time.perf_counter()
             try:
@@ -50,9 +48,9 @@ def trace(
                 duration = time.perf_counter() - start
 
                 if log_result:
-                    log.debug(f"📤 [{label}] RESULT: {format_result(result)}")
+                    log.trace(f"📤 [{label}] RESULT: {format_result(result)}")
 
-                log.info(f"✅ [{label}] END ({duration:.2f}s)")
+                log.trace(f"✅ [{label}] END ({duration:.2f}s)")
                 return result
             except Exception as e:
                 log.exception(f"💥 [{label}] FAILED | Error: {e}")
@@ -65,9 +63,9 @@ def trace(
             log = logger.bind(function_id=function_id)
             label = name or func.__qualname__
 
-            log.info(f"🔍 [{label}] START")
+            log.trace(f"🔍 [{label}] START")
             if log_args:
-                log.debug(f"📥 [{label}] ARGS: {format_args(args, kwargs)}")
+                log.trace(f"📥 [{label}] ARGS: {format_args(args, kwargs)}")
 
             start = time.perf_counter()
             try:
@@ -75,9 +73,9 @@ def trace(
                 duration = time.perf_counter() - start
 
                 if log_result:
-                    log.debug(f"📤 [{label}] RESULT: {format_result(result)}")
+                    log.trace(f"📤 [{label}] RESULT: {format_result(result)}")
 
-                log.info(f"✅ [{label}] END ({duration:.2f}s)")
+                log.trace(f"✅ [{label}] END ({duration:.2f}s)")
                 return result
             except Exception as e:
                 log.exception(f"💥 [{label}] FAILED | Error: {e}")
