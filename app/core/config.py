@@ -1,8 +1,9 @@
 """Configuration settings for the application"""
 
 import enum
+from typing import Union
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class LogLevel(str, enum.Enum):
@@ -29,21 +30,17 @@ class AppEnvs(str, enum.Enum):
 class AppConfig(BaseSettings):
     """Primary configuration settings for the application."""
 
-    # Logging configuration
-    log_level: LogLevel = LogLevel.DEBUG
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
-    # Application metadata
+    log_level: LogLevel = LogLevel.TRACE
     release_version: str = "0.0.1"
     environment: AppEnvs = AppEnvs.DEVELOPMENT
     host: str = "0.0.0.0"
     port: int = 8002
-    worker_count: int | None = None
-
-    class Config:
-        """Configuration for environment file loading."""
-
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    worker_count: Union[int, None] = None
 
 
 # Initialize configuration settings

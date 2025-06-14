@@ -34,3 +34,4 @@ repos:
         entry: poetry run pytest
         language: system
         types: [python]
+        args: [tests]

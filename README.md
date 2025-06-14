@@ -5,9 +5,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Last%20Commit-Today-blue?style=flat-square" />
-  <img src="https://img.shields.io/badge/Python-85.8%25-blue?style=flat-square" />
-  <img src="https://img.shields.io/badge/Languages-4-informational?style=flat-square" />
+  <img src="https://img.shields.io/github/last-commit/kevaldekivadiya2415/fastapi-genai-boilerplate?style=flat-square" />
+  <img src="https://img.shields.io/github/languages/top/kevaldekivadiya2415/fastapi-genai-boilerplate?style=flat-square" />
+  <img src="https://img.shields.io/github/languages/count/kevaldekivadiya2415/fastapi-genai-boilerplate?style=flat-square" />
+  <img src=https://img.shields.io/badge/Python-3.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13-blue?style=flat-square&logo=python />
 </p>
 
 ---
