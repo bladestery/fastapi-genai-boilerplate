@@ -1,10 +1,11 @@
-"""Primary application entry point"""
+"""Primary application entry point for FastAPI Boilerplate."""
 
 from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.apis import api_routers
 from app.core.config import settings
@@ -13,14 +14,9 @@ from app.core.lifespan import lifespan
 from app.core.middlewares import LoggingMiddleware, SlowAPIMiddleware
 
 
-def configure_routes(app: FastAPI) -> None:
-    """Attach API routes to the application."""
-    app.include_router(api_routers)
-
-
 def configure_middleware() -> List[Middleware]:
     """Define and return middleware settings."""
-    cors_middleware = [
+    return [
         Middleware(
             CORSMiddleware,
             allow_origins=["*"],
@@ -31,7 +27,21 @@ def configure_middleware() -> List[Middleware]:
         Middleware(LoggingMiddleware),
         Middleware(SlowAPIMiddleware),
     ]
-    return cors_middleware
+
+
+def configure_routes(app: FastAPI) -> None:
+    """Attach API routes to the application."""
+    app.include_router(api_routers)
+
+
+def configure_metrics(app: FastAPI) -> None:
+    """Instrument and expose Prometheus metrics."""
+    Instrumentator(
+        should_group_status_codes=False,
+        should_ignore_untemplated=True,
+        should_respect_env_var=True,
+        excluded_handlers=[],
+    ).instrument(app).expose(app, endpoint="/metrics", include_in_schema=True)
 
 
 def build_app() -> FastAPI:
@@ -46,10 +56,10 @@ def build_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Register custom exception handlers
     HandleExceptions(app=app_instance)
+    configure_routes(app_instance)
+    configure_metrics(app_instance)
 
-    configure_routes(app=app_instance)
     return app_instance
 
 

@@ -6,32 +6,29 @@ FROM python:3.12-slim-bullseye AS base
 RUN echo "🚀 [1/7] Starting Docker image build..."
 
 ENV PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    POETRY_HOME="/opt/poetry"
-
-ENV PATH="$POETRY_HOME/bin:$PATH"
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
 # ===============================
-# 🔹 [2/7] Install System Dependencies & Poetry
+# 🔹 [2/7] Install System Dependencies & Poetry via pip
 # ===============================
 FROM base AS deps
 
-RUN echo "📦 [2/7] Installing system dependencies and Poetry..."
+RUN echo "📦 [2/7] Installing system dependencies and Poetry via pip..."
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gcc \
     python3-dev \
     libc-dev \
- && curl -sSL https://install.python-poetry.org | python3 - \
- && apt-get remove -y curl \
- && apt-get autoremove -y \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and confirm Poetry install
-RUN pip install --upgrade pip && poetry --version
+# Install poetry via pip
+RUN pip3 install --upgrade pip poetry
+
+# Confirm Poetry install
+RUN poetry --version
 
 # ===============================
 # 🔹 [3/7] Copy Poetry Config
@@ -49,7 +46,6 @@ COPY pyproject.toml poetry.lock* /app/
 
 RUN echo "📦 [4/7] Installing Python dependencies (main group only)..."
 
-# Force Poetry to create virtualenv inside the project folder
 RUN poetry config virtualenvs.in-project true
 
 RUN poetry install --no-root
@@ -61,8 +57,8 @@ FROM base AS final
 
 RUN echo "🏗️ [5/7] Assembling final application image..."
 
-COPY --from=deps $POETRY_HOME $POETRY_HOME
-ENV PATH="$POETRY_HOME/bin:$PATH"
+# Copy Poetry installed via pip (no need to copy $POETRY_HOME now)
+RUN pip3 install poetry
 
 COPY --from=builder /app /app
 
