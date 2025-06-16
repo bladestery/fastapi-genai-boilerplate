@@ -46,6 +46,8 @@
 - [Configuration](#-configuration)
 - [Testing & Linting](#-testing--linting)
 - [Deployment](#-deployment)
+- [Monitoring with Prometheus & Grafana](#-monitoring-with-prometheus--grafana)
+- [Docker Compose Setup](#-docker-compose-setup)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -234,6 +236,96 @@ Production uses:
 
 - `Gunicorn` with `UvicornWorker`
 - `.env` to control concurrency
+
+---
+
+## 📊 Monitoring with Prometheus & Grafana
+
+This boilerplate includes built-in observability via the `prometheus-fastapi-instrumentator` library.
+
+### 🔧 Metrics Endpoint
+
+All FastAPI metrics (latency, requests, status codes, etc.) are exposed at:
+
+```http://HOST:PORT/metrics```
+
+---
+
+## 🐳 Docker Compose Setup
+
+A `docker-compose.yml` file is included to run the full observability stack:
+
+* ✅ FastAPI App
+* 📊 Prometheus (for metrics collection)
+* 📈 Grafana (for dashboards)
+
+### ▶️ Usage
+
+Run everything with:
+
+```bash
+docker-compose up --build
+```
+
+### 📍 Port Mapping Overview
+
+| Service    | URL                                            | Host Port | Container Port |
+| ---------- | ---------------------------------------------- | --------- | -------------- |
+| FastAPI    | [http://localhost:8002](http://localhost:8002) | `8002`    | `8002`         |
+| Prometheus | [http://localhost:9090](http://localhost:9090) | `9090`    | `9090`         |
+| Grafana    | [http://localhost:3000](http://localhost:3000) | `3000`    | `3000`         |
+
+### 🔐 Grafana Credentials
+By default, Grafana uses the following login credentials (configured via environment variables):
+
+```
+Username: admin
+Password: supersecurepassword
+```
+
+You can modify these in the ```docker-compose.yml``` under the grafana service:
+```
+grafana:
+  image: grafana/grafana
+  ports:
+    - "3000:3000"
+  environment:
+    - GF_SECURITY_ADMIN_USER=admin
+    - GF_SECURITY_ADMIN_PASSWORD=supersecurepassword
+```
+
+### 🗂️ Prometheus Configuration
+
+Make sure the following file exists:
+
+```
+docker/
+└── prometheus/
+    └── prometheus.yml
+```
+
+Example:
+
+```yaml
+# docker/prometheus/prometheus.yml
+
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'fastapi'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['fastapi:8002']
+```
+
+> 🔁 Prometheus scrapes `/metrics` from FastAPI every 5 seconds.
+
+### ⛔ To Stop Everything
+
+```bash
+docker-compose down
+```
 
 ---
 
