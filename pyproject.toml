@@ -25,6 +25,7 @@ slowapi = ">=0.1.9,<0.2.0"
 pytest = "^8.4.0"
 setuptools = "<81"
 prometheus-fastapi-instrumentator = "^7.1.0"
+aiocache = "^0.12.3"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = ">=4.2.0,<5.0.0"
