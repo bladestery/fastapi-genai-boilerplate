@@ -28,7 +28,7 @@
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/Docker-2496ed?logo=docker&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=flat-square" />
-  <img src="https://img.shields.io/badge/Poetry-60A5FA?logo=poetry&logoColor=white&style=flat-square" />
+  <img src="https://img.shields.io/badge/uv-55BB8E?logo=python&logoColor=white&style=flat-square" />
 </p>
 
 ---
@@ -95,7 +95,7 @@ This template empowers you to build robust, scalable, and maintainable APIs with
 |------------------|-------|
 | Core Framework   | [FastAPI](https://fastapi.tiangolo.com/) |
 | ASGI Servers     | [Uvicorn](https://www.uvicorn.org/), [Gunicorn](https://gunicorn.org/) |
-| Dependency Mgmt  | [Poetry](https://python-poetry.org/) |
+| Dependency Mgmt  | [UV](https://docs.astral.sh/uv/) |
 | Configuration    | [Pydantic](https://pydantic.dev/) |
 | Logging          | [Loguru](https://loguru.readthedocs.io/) |
 | Rate Limiting    | [SlowAPI](https://slowapi.readthedocs.io/) |
@@ -119,7 +119,7 @@ fastapi_genai_boilerplate/
 ├── .env                         # Local environment variables
 ├── Dockerfile                   # Docker setup
 ├── Makefile                     # Developer shortcuts
-├── pyproject.toml               # Poetry dependencies & configs
+├── pyproject.toml               # UV dependencies & configs
 ├── pre-commit-config.yaml       # Git hook configs
 └── README.md                    # Project documentation
 ```
@@ -131,10 +131,22 @@ fastapi_genai_boilerplate/
 ### 1. Clone & Install Dependencies
 
 ```bash
+# Clone the repository
 git clone https://github.com/kevaldekivadiya2415/fastapi-genai-boilerplate
 cd fastapi_genai_boilerplate
-poetry install
-poetry shell
+
+# Install uv via pip
+pip3 install uv
+
+# Optional: create and activate virtual environment (recommended)
+uv venv
+source .venv/bin/activate
+
+# Sync dependencies from pyproject.toml and uv.lock
+uv sync
+
+# Start an interactive Python shell with uv
+uv run main.py
 ```
 
 ### 2. Add a `.env` File
