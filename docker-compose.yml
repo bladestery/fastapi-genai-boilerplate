@@ -12,8 +12,37 @@ services:
       - PYTHONUNBUFFERED=1
     depends_on:
       - prometheus
+      - redis
     networks:
       - monitoring
+    env_file:
+      - .env
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: celery-worker
+    command: celery -A app.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+    networks:
+      - monitoring
+    env_file:
+      - .env
+
+  redis:
+    image: redis/redis-stack:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"  # RedisInsight UI
+    environment:
+      - REDIS_ARGS=--requirepass yourStrongPassword
+    networks:
+      - monitoring
+    env_file:
+      - .env
 
   prometheus:
     image: prom/prometheus:latest
@@ -39,6 +68,8 @@ services:
       - prometheus
     networks:
       - monitoring
+    env_file:
+      - .env
 
 volumes:
   grafana_data:

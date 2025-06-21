@@ -35,12 +35,17 @@ class AppConfig(BaseSettings):
         env_file_encoding="utf-8",
     )
 
-    log_level: LogLevel = LogLevel.TRACE
-    release_version: str = "0.0.1"
-    environment: AppEnvs = AppEnvs.DEVELOPMENT
-    host: str = "0.0.0.0"
-    port: int = 8002
-    worker_count: Union[int, None] = None
+    LOG_LEVEL: LogLevel = LogLevel.TRACE
+    RELEASE_VERSION: str = "0.0.1"
+    ENVIRONMENT: AppEnvs = AppEnvs.DEVELOPMENT
+    HOST: str = "0.0.0.0"
+    PORT: int = 8002
+    WORKER_COUNT: Union[int, None] = None
+
+    # Redis
+    REDIS_HOST: str = ""
+    REDIS_PORT: str = ""
+    REDIS_PASSWORD: str = ""
 
 
 # Initialize configuration settings

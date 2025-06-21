@@ -42,8 +42,8 @@ COPY pyproject.toml uv.lock* /app/
 
 RUN echo "📦 [4/7] Installing Python dependencies (main group only)..."
 
-RUN uv sync --locked --no-install-project --no-dev
-
+RUN uv pip install --system pyproject.toml
+RUN pip install celery
 # ===============================
 # 🔹 [5/7] Final Image Build
 # ===============================
