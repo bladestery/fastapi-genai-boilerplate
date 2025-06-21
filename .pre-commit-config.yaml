@@ -31,7 +31,18 @@ repos:
     hooks:
       - id: pytest
         name: Run pytest tests
-        entry: poetry run pytest
+        entry: bash
         language: system
         types: [python]
-        args: [tests]
+        verbose: true
+        args:
+          - -c
+          - |
+            echo "🔍 Collecting test files..."
+            if ls tests/test_*.py >/dev/null 2>&1; then
+              echo "✅ Found test files. Running pytest..."
+              uv run pytest --disable-warnings
+            else
+              echo "⚠️  No test files found. Skipping pytest run."
+              exit 0
+            fi

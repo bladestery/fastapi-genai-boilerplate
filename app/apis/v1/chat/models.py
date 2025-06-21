@@ -7,6 +7,11 @@ class ChatRequest(BaseModel):
     """Request model for configuring chat token streaming."""
 
     sleep: float = Field(
-        1, description="Sleep duration (in seconds) between streamed tokens."
+        1,
+        json_schema_extra={
+            "description": "Sleep duration (in seconds) between streamed tokens."
+        },
     )
-    number: int = Field(10, description="Total number of tokens to stream.")
+    number: int = Field(
+        10, json_schema_extra={"description": "Total number of tokens to stream."}
+    )

@@ -11,11 +11,11 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 
 # ===============================
-# 🔹 [2/7] Install System Dependencies & Poetry via pip
+# 🔹 [2/7] Install System Dependencies & uv via pip
 # ===============================
 FROM base AS deps
 
-RUN echo "📦 [2/7] Installing system dependencies and Poetry via pip..."
+RUN echo "📦 [2/7] Installing system dependencies and uv via pip..."
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -24,31 +24,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libc-dev \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install poetry via pip
-RUN pip3 install --upgrade pip poetry
-
-# Confirm Poetry install
-RUN poetry --version
+RUN pip install --upgrade pip uv
 
 # ===============================
-# 🔹 [3/7] Copy Poetry Config
+# 🔹 [3/7] Copy uv Config
 # ===============================
-COPY pyproject.toml poetry.lock* /app/
+COPY pyproject.toml uv.lock* /app/
 
-RUN echo "📄 [3/7] Copied Poetry configuration files..."
+RUN echo "📄 [3/7] Copied uv configuration files..."
 
 # ===============================
 # 🔹 [4/7] Install Python Dependencies
 # ===============================
 FROM deps AS builder
 
-COPY pyproject.toml poetry.lock* /app/
+COPY pyproject.toml uv.lock* /app/
 
 RUN echo "📦 [4/7] Installing Python dependencies (main group only)..."
 
-RUN poetry config virtualenvs.in-project true
-
-RUN poetry install --no-root
+RUN uv sync --locked --no-install-project --no-dev
 
 # ===============================
 # 🔹 [5/7] Final Image Build
@@ -57,8 +51,7 @@ FROM base AS final
 
 RUN echo "🏗️ [5/7] Assembling final application image..."
 
-# Copy Poetry installed via pip (no need to copy $POETRY_HOME now)
-RUN pip3 install poetry
+RUN pip install uv
 
 COPY --from=builder /app /app
 
@@ -76,4 +69,4 @@ EXPOSE 8002
 
 RUN echo "✅ [7/7] Build complete. Ready to launch the app."
 
-CMD ["poetry", "run", "python", "main.py"]
+CMD ["uv", "run", "python", "main.py"]

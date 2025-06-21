@@ -4,14 +4,13 @@ ENV_FILE := ".env"
 PORT := $(shell grep ^PORT= $(ENV_FILE) | cut -d '=' -f2)
 
 # Commands
-PYTHON := poetry run python
-POETRY := poetry
+PYTHON := uv run python
 UVICORN := $(PYTHON) main.py
-ISORT := $(POETRY) run isort .
-BLACK := $(POETRY) run black .
-RUFF := $(POETRY) run ruff .
-MYPY := $(POETRY) run mypy .
-PRECOMMIT := $(POETRY) run pre-commit
+ISORT := uv run isort .
+BLACK := uv run black .
+RUFF := uv run ruff .
+MYPY := uv run mypy .
+PRECOMMIT := uv run pre-commit
 
 # Default
 .DEFAULT_GOAL := help
@@ -27,7 +26,7 @@ start: ## Run FastAPI app for production
 	$(UVICORN) --env-file $(ENV_FILE)
 
 .PHONY: shell
-shell: ## Open Python shell with poetry env
+shell: ## Open Python shell in uv env
 	$(PYTHON)
 
 ## ----------- Linting & Formatting -----------
@@ -39,7 +38,7 @@ format: ## Format code with black and isort
 
 .PHONY: lint
 lint: ## Run linters (ruff + mypy)
-	$(POETRY) run ruff check .
+	uv pip run ruff check .
 	$(MYPY)
 
 .PHONY: check
