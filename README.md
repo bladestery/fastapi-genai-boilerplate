@@ -133,7 +133,7 @@ fastapi_genai_boilerplate/
 ```bash
 # Clone the repository
 git clone https://github.com/kevaldekivadiya2415/fastapi-genai-boilerplate
-cd fastapi_genai_boilerplate
+cd fastapi-genai-boilerplate
 
 # Install uv via pip
 pip3 install uv
