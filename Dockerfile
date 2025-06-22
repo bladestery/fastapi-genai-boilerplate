@@ -20,7 +20,7 @@ RUN uv pip install --system pyproject.toml
 COPY . /app
 
 # Expose app port
-EXPOSE 8002
+EXPOSE 8004
 
 # Default run command
 CMD ["uv", "run", "python", "main.py"]
