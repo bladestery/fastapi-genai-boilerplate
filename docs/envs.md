@@ -20,6 +20,10 @@ WORKER_COUNT=4
 REDIS_HOST=redis
 REDIS_PORT=6379
 REDIS_PASSWORD=yourStrongPassword
+
+# Grafana Configuration
+GF_SECURITY_ADMIN_USER=admin
+GF_SECURITY_ADMIN_PASSWORD=supersecurepassword
 ```
 
 ---

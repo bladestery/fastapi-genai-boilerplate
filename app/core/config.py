@@ -31,8 +31,7 @@ class AppConfig(BaseSettings):
     """Primary configuration settings for the application."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
     LOG_LEVEL: LogLevel = LogLevel.TRACE
