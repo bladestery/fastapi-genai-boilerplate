@@ -1,25 +1,18 @@
 """Root router"""
 
 from fastapi import APIRouter
-
-from app import settings
-from app.core.responses import AppJSONResponse
+from fastapi.responses import RedirectResponse
 
 root_router = APIRouter()
 
 
 @root_router.get(
     "/",
-    response_class=AppJSONResponse,
-    summary="Root",
-    description="Endpoint of service (/)",
-    response_description="JSON response indicating the root message of the service.",
+    include_in_schema=False,
+    summary="Root Redirect",
+    description="Redirects the root path to the interactive API documentation (/docs).",
+    response_description="Redirect response to /docs",
 )
 async def root():
-    """Endpoint for root."""
-    return AppJSONResponse(
-        data={"message": "FastAPI Boilerplate", "version": settings.RELEASE_VERSION},
-        message="Service root endpoint",
-        status="success",
-        status_code=200,
-    )
+    """Redirects to the API documentation."""
+    return RedirectResponse(url="/docs")

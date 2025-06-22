@@ -9,7 +9,7 @@ health_router = APIRouter()
 
 
 @health_router.get(
-    "/",
+    "/health",
     response_class=AppJSONResponse,
     summary="Root",
     description="Endpoint of service (/)",
