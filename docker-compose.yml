@@ -35,7 +35,7 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-      - "8001:8001"  # RedisInsight UI
+      - "8001:8001"
     environment:
       - REDIS_ARGS=--requirepass yourStrongPassword
     networks:
@@ -69,6 +69,30 @@ services:
       - monitoring
     env_file:
       - .env
+
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    container_name: promtail
+    volumes:
+      - /var/log:/var/log
+      - /etc/machine-id:/etc/machine-id
+      - ./docker/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/promtail-config.yml
+    depends_on:
+      - loki
+    networks:
+      - monitoring
 
 volumes:
   grafana_data:

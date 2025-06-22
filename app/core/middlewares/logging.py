@@ -50,6 +50,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     """Middleware to log incoming HTTP requests and responses."""
 
     async def dispatch(self, request: Request, call_next) -> Response:
+        # Skip logging for /metrics endpoint
+        if request.url.path == "/metrics":
+            return await call_next(request)
+
         # Set or generate request ID
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
         request_id_ctx_var.set(request_id)  # type: ignore
