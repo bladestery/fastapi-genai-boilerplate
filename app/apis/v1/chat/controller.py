@@ -1,13 +1,13 @@
-"""Route for chat streaming"""
+"""Route for chat streaming and summary task."""
 
 from fastapi import Depends, Query, Request
 from fastapi.routing import APIRouter
 from fastapi_utils.cbv import cbv
 
 from app.core import limiter
-from app.core.responses import AppStreamingResponse
+from app.core.responses import AppJSONResponse, AppStreamingResponse
 
-from .models import ChatRequest
+from .models import ChatRequest, SummaryRequest
 from .service import ChatService
 
 router = APIRouter()
@@ -41,3 +41,23 @@ class ChatRoute:
         data = await self.service.chat_service(request_params=chat_request)
 
         return AppStreamingResponse(data_stream=data)
+
+    @router.post("/celery/summary")
+    async def celery_summary(self, request: Request, request_params: SummaryRequest):
+        """Submit text for summary task."""
+        data, message, status_code = await self.service.submit_summary_task(
+            text=request_params.text
+        )
+
+        return AppJSONResponse(data=data, message=message, status_code=status_code)
+
+    @router.get("/celery/summary/status")
+    async def celery_summary_status(
+        self,
+        request: Request,
+        task_id: str = Query(..., description="Celery task ID to check status"),
+    ):
+        """Get status and result of a Celery summary task."""
+        data, message, status_code = await self.service.summary_status(task_id=task_id)
+
+        return AppJSONResponse(data=data, message=message, status_code=status_code)

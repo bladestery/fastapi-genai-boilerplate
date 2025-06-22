@@ -15,3 +15,11 @@ class ChatRequest(BaseModel):
     number: int = Field(
         10, json_schema_extra={"description": "Total number of tokens to stream."}
     )
+
+
+class SummaryRequest(BaseModel):
+    """Request model for submitting text to the summary task."""
+
+    text: str = Field(
+        ..., json_schema_extra={"description": "The text content to summarize."}
+    )

@@ -3,11 +3,13 @@
 import asyncio
 import hashlib
 import json
-from typing import AsyncGenerator, Callable
+from typing import Any, AsyncGenerator, Callable, Tuple
 
+from celery.result import AsyncResult
 from loguru import logger
 
-from app import cache, trace
+from app import cache, celery_app, trace
+from app.tasks.chat import generate_summary
 
 from .models import ChatRequest
 
@@ -67,3 +69,36 @@ class ChatService:
             logger.info(f"Response cached under key: {cache_key}")
 
         return stream
+
+    async def submit_summary_task(self, text: str) -> Tuple[Any, str, int]:
+        """Submit a summary task to Celery and return the task ID."""
+
+        logger.info("Submitting summary task to Celery")
+        task = generate_summary.delay(text)
+        logger.debug(f"Summary task submitted. Task ID: {task.id}")
+
+        return (
+            {"task_id": task.id, "status": "submitted"},
+            "Summary task has been successfully submitted.",
+            200,
+        )
+
+    async def summary_status(self, task_id: str) -> Tuple[Any, str, int]:
+        """Check the status of a summary task and return the result if available."""
+
+        result = AsyncResult(task_id, app=celery_app)
+
+        response_data = {
+            "task_id": task_id,
+            "status": result.status,
+        }
+
+        # Only include result if it's ready
+        if result.ready():
+            response_data["result"] = result.result
+
+        return (
+            response_data,
+            "Summary task status retrieved successfully.",
+            200,
+        )

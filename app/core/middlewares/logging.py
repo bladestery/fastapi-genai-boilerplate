@@ -14,7 +14,7 @@ from app.core.config import AppEnvs, settings
 request_id_ctx_var = contextvars.ContextVar("request_id", default=None)
 
 # Determine the environment (e.g., development, production)
-APP_ENV = settings.environment.lower()
+APP_ENV = settings.ENVIRONMENT.lower()
 
 
 def add_request_id_to_log(record: dict) -> None:
@@ -40,7 +40,7 @@ logger.remove()
 logger.add(
     sink=lambda msg: print(msg, end=""),
     format=LOG_FORMAT,
-    level=settings.log_level.upper(),
+    level=settings.LOG_LEVEL.upper(),
     enqueue=True,
     colorize=True,
 )
@@ -50,6 +50,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     """Middleware to log incoming HTTP requests and responses."""
 
     async def dispatch(self, request: Request, call_next) -> Response:
+        # Skip logging for /metrics endpoint
+        if request.url.path == "/metrics":
+            return await call_next(request)
+
         # Set or generate request ID
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
         request_id_ctx_var.set(request_id)  # type: ignore

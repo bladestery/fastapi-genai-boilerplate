@@ -29,6 +29,8 @@
   <img src="https://img.shields.io/badge/Docker-2496ed?logo=docker&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/uv-55BB8E?logo=python&logoColor=white&style=flat-square" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white&style=flat-square" />
+
 </p>
 
 ---
@@ -47,6 +49,7 @@
 - [Testing & Linting](#-testing--linting)
 - [Deployment](#-deployment)
 - [Monitoring with Prometheus & Grafana](#-monitoring-with-prometheus--grafana)
+- [Redis Caching](#-redis-caching)
 - [Docker Compose Setup](#-docker-compose-setup)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -135,12 +138,12 @@ fastapi_genai_boilerplate/
 git clone https://github.com/kevaldekivadiya2415/fastapi-genai-boilerplate
 cd fastapi-genai-boilerplate
 
-# Install uv via pip
-pip3 install uv
-
 # Optional: create and activate virtual environment (recommended)
 uv venv
 source .venv/bin/activate
+
+# Install uv via pip
+pip3 install uv
 
 # Sync dependencies from pyproject.toml and uv.lock
 uv sync
@@ -213,10 +216,17 @@ Defaults can be overridden via `.env` file.
 
 ```python
 class AppConfig(BaseSettings):
-    LOG_LEVEL: str = "INFO"
-    ENVIRONMENT: str = "production"
+    LOG_LEVEL:syr = LogLevel.TRACE
+    RELEASE_VERSION: str = "0.0.1"
+    ENVIRONMENT: str = AppEnvs.DEVELOPMENT
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = 8002
+    WORKER_COUNT: Union[int, None] = None
+
+    # Redis
+    REDIS_HOST: str = ""
+    REDIS_PORT: str = ""
+    REDIS_PASSWORD: str = ""
 ```
 
 ---
@@ -270,6 +280,8 @@ A `docker-compose.yml` file is included to run the full observability stack:
 * ✅ FastAPI App
 * 📊 Prometheus (for metrics collection)
 * 📈 Grafana (for dashboards)
+* 🧠 Redis (for caching and Celery task queue)
+* 🧰 RedisInsight (for Redis GUI)
 
 ### ▶️ Usage
 
@@ -281,11 +293,13 @@ docker-compose up --build
 
 ### 📍 Port Mapping Overview
 
-| Service    | URL                                            | Host Port | Container Port |
-| ---------- | ---------------------------------------------- | --------- | -------------- |
-| FastAPI    | [http://localhost:8002](http://localhost:8002) | `8002`    | `8002`         |
-| Prometheus | [http://localhost:9090](http://localhost:9090) | `9090`    | `9090`         |
-| Grafana    | [http://localhost:3000](http://localhost:3000) | `3000`    | `3000`         |
+| Service       | URL                                              | Host Port | Container Port |
+| ------------- | ------------------------------------------------ | --------- | -------------- |
+| FastAPI       | [http://localhost:8002](http://localhost:8002)   | `8002`    | `8002`         |
+| Prometheus    | [http://localhost:9090](http://localhost:9090)   | `9090`    | `9090`         |
+| Grafana       | [http://localhost:3000](http://localhost:3000)   | `3000`    | `3000`         |
+| RedisInsight  | [http://localhost:8001](http://localhost:8001)   | `8001`    | `8001`         |
+
 
 ### 🔐 Grafana Credentials
 By default, Grafana uses the following login credentials (configured via environment variables):
@@ -332,6 +346,61 @@ scrape_configs:
 ```
 
 > 🔁 Prometheus scrapes `/metrics` from FastAPI every 5 seconds.
+
+---
+
+## 🧠 Redis Caching
+
+This boilerplate uses **Redis with `aiocache`** for request-level caching and task results.
+
+### ✅ Features
+
+* Uses **Redis** as the cache backend
+* JSON serialization of values
+* TTL (Time-To-Live) support
+* Namespace isolation
+* Authentication support (username/password)
+
+### ⚙️ Redis Cache Configuration
+
+Caching is set up in `app/core/cache/cache.py`:
+
+```python
+from aiocache import Cache
+from aiocache.serializers import JsonSerializer
+from app.core.config import settings
+
+cache = Cache(
+    cache_class=Cache.REDIS,  # Redis backend
+    endpoint=settings.REDIS_HOST,
+    port=settings.REDIS_PORT,
+    username=settings.REDIS_USER,
+    password=settings.REDIS_PASSWORD,
+    ttl=300,  # Cache timeout in 300 seconds (5 mins)
+    namespace="fastapi_cache",
+    serializer=JsonSerializer(),
+    db=1,
+)
+```
+
+### 🛡️ Brute Force Protection Tip
+
+To prevent cache pollution by brute-force query changes:
+
+* Normalize/cache keys using request fingerprinting
+* Apply rate-limiting middleware (already included via `slowapi`)
+* Use checksum-based cache keys (e.g. `hashlib.sha256(json.dumps(payload))`)
+
+### 📦 Docker Redis Setup
+
+Redis (with RedisInsight UI) is exposed via Docker:
+
+| Service      | URL                                            | Host Port | Container Port |
+| ------------ | ---------------------------------------------- | --------- | -------------- |
+| Redis        | redis://localhost:6379                        | `6379`    | `6379`         |
+| RedisInsight | [http://localhost:8001](http://localhost:8001) | `8001`    | `8001`         |
+
+---
 
 ### ⛔ To Stop Everything
 
