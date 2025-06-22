@@ -51,7 +51,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next) -> Response:
         # Skip logging for /metrics endpoint
-        if request.url.path == "/metrics":
+        if (
+            request.url.path == "/metrics"
+            or request.url.path == "/docs"
+            or request.url.path == "/health"
+            or request.url.path == "/openapi.json"
+            or request.url.path == "/"
+        ):
             return await call_next(request)
 
         # Set or generate request ID
