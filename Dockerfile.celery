@@ -16,11 +16,8 @@ RUN pip install --upgrade pip uv
 COPY pyproject.toml uv.lock* /app/
 RUN uv pip install --system pyproject.toml
 
-# Copy application code
+# Copy source code
 COPY . /app
 
-# Expose app port
-EXPOSE 8002
-
-# Default run command
-CMD ["uv", "run", "python", "main.py"]
+# Run Celery worker
+CMD ["uv", "run", "celery", "-A", "app.celery_app", "worker", "--loglevel=info"]

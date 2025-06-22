@@ -21,9 +21,8 @@ services:
   celery:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.celery
     container_name: celery-worker
-    command: celery -A app.celery_app worker --loglevel=info
     depends_on:
       - redis
     networks:
