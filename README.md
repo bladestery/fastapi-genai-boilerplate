@@ -51,6 +51,7 @@
 - [Monitoring with Prometheus & Grafana](#-monitoring-with-prometheus--grafana)
 - [Redis Caching](#-redis-caching)
 - [Docker Compose Setup](#-docker-compose-setup)
+- [Documentation](#-documentation)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -407,6 +408,17 @@ Redis (with RedisInsight UI) is exposed via Docker:
 ```bash
 docker-compose down
 ```
+
+---
+
+## 🧩 Documentation
+
+- 🧠 [Logging Middleware](docs/logging.md)
+- 🛠️ [Makefile Commands](docs/makefile.md)
+- 🌍 [Environment Variables](docs/envs.md)
+- 🐳 [Docker Compose Setup](docs/docker-compose.md)
+- 🛡️ [Rate Limiting with SlowAPI](docs/rate_limit.md)
+- 🧭 [Trace Decorator](docs/trace.md)
 
 ---
 
