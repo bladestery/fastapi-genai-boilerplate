@@ -46,6 +46,9 @@ class AppConfig(BaseSettings):
     REDIS_PORT: str = ""
     REDIS_PASSWORD: str = ""
 
+    # Gemini Model
+    GEMINI_API_KEY: str = ""
+
 
 # Initialize configuration settings
 settings = AppConfig()
