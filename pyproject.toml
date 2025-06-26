@@ -27,6 +27,7 @@ dependencies = [
   "duckduckgo-search>=8.0.4",
   "langchain-community>=0.3.26",
   "langgraph>=0.4.9",
+  "langchain-tavily>=0.2.4",
 ]
 
 [project.optional-dependencies]
