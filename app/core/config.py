@@ -18,6 +18,13 @@ class LogLevel(str, enum.Enum):
     TRACE = "TRACE"
 
 
+class CacheBackend(str, enum.Enum):
+    """Supported cache backends."""
+
+    REDIS = "redis"
+    LOCAL = "local"
+
+
 class AppEnvs(str, enum.Enum):
     """Application envs"""
 
@@ -40,6 +47,9 @@ class AppConfig(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8002
     WORKER_COUNT: Union[int, None] = None
+
+    # Cache
+    CACHE_BACKEND: CacheBackend = CacheBackend.LOCAL
 
     # Redis
     REDIS_HOST: str = ""
