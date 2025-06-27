@@ -1,11 +1,11 @@
 """Question enhancement component for generating multiple refined websearch questions."""
 
 from typing import Dict
-from venv import logger
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
 
 from app import settings
