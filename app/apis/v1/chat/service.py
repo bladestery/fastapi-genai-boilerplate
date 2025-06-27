@@ -6,12 +6,14 @@ import json
 from typing import Any, AsyncGenerator, Callable, Tuple
 
 from celery.result import AsyncResult
+from langchain_core.messages import HumanMessage
 from loguru import logger
 
 from app import cache, celery_app, trace
 from app.tasks.chat import generate_summary
 
-from .models import ChatRequest
+from ....workflows.graphs.websearch import WebSearchAgentGraph
+from .models import ChatRequest, WebSearchChatRequest
 
 
 class ChatService:
@@ -67,6 +69,42 @@ class ChatService:
 
             await cache.set(cache_key, buffer)
             logger.info(f"Response cached under key: {cache_key}")
+
+        return stream
+
+    @trace(name="chat_websearch_service")
+    async def chat_websearch_service(
+        self, request_params: WebSearchChatRequest
+    ) -> Callable[[], AsyncGenerator[str, None]]:
+
+        # Compile the LangGraph agent
+        graph = WebSearchAgentGraph().compile()
+
+        # Prepare initial input for agent execution
+        state_input = {
+            "question": HumanMessage(content=request_params.question),
+            "refined_question": "",
+            "require_enhancement": False,
+            "questions": [],
+            "search_results": [],
+            "messages": [HumanMessage(content=request_params.question)],
+        }
+
+        # Run the workflow and get the final state
+        async def stream() -> AsyncGenerator[str, None]:
+
+            for message_chunk, metadata in graph.stream(
+                input=state_input,
+                config={"configurable": {"thread_id": str(request_params.thread_id)}},
+                stream_mode=["messages"],
+            ):
+
+                if (
+                    message_chunk.content
+                    and isinstance(metadata, dict)
+                    and metadata.get("langgraph_node") == "answer_generation"
+                ):
+                    yield message_chunk.content
 
         return stream
 

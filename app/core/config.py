@@ -66,8 +66,8 @@ class AppConfig(BaseSettings):
     REDIS_PORT: str = ""
     REDIS_PASSWORD: str = ""
 
-    # Gemini Model
-    GEMINI_API_KEY: str = ""
+    # OPENAI Model
+    OPENAI_API_KEY: str = ""
     TAVILY_API_KEY: str = ""
 
 

@@ -29,6 +29,7 @@ dependencies = [
   "langchain-tavily>=0.2.4",
   "fastapi-limiter>=0.1.6",
   "fakeredis[lua]>=2.30.1",
+  "langchain-openai>=0.3.26",
 ]
 
 [project.optional-dependencies]

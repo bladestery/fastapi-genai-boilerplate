@@ -7,7 +7,7 @@ from fastapi_utils.cbv import cbv
 
 from app.core.responses import AppJSONResponse, AppStreamingResponse
 
-from .models import ChatRequest, SummaryRequest
+from .models import ChatRequest, SummaryRequest, WebSearchChatRequest
 from .service import ChatService
 
 router = APIRouter()
@@ -42,6 +42,27 @@ class ChatRoute:
         """Stream chat tokens based on query parameters."""
         chat_request = ChatRequest(sleep=sleep, number=number)
         data = await self.service.chat_service(request_params=chat_request)
+
+        return AppStreamingResponse(data_stream=data)
+
+    @router.get(
+        "/chat/websearch",
+        response_class=AppStreamingResponse,
+        dependencies=[Depends(RateLimiter(times=5, seconds=60))],
+    )
+    async def chat_websearch(
+        self,
+        request: Request,
+        question: str = Query(
+            description="The user's input question to be processed for web search and answer generation."
+        ),
+        thread_id: str = Query(
+            description="Unique identifier for the chat thread to maintain context across requests."
+        ),
+    ):
+        """Stream chat tokens based on query parameters."""
+        chat_request = WebSearchChatRequest(question=question, thread_id=thread_id)
+        data = await self.service.chat_websearch_service(request_params=chat_request)
 
         return AppStreamingResponse(data_stream=data)
 

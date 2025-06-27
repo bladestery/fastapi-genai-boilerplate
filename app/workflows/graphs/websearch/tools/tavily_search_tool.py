@@ -3,6 +3,8 @@
 from langchain_core.tools import BaseTool
 from langchain_tavily import TavilySearch
 
+from app import settings
+
 TAVILY_SEARCH_TOOL: BaseTool = TavilySearch(
     max_results=5,
     topic="general",
@@ -15,4 +17,5 @@ TAVILY_SEARCH_TOOL: BaseTool = TavilySearch(
     include_domains=None,
     exclude_domains=None,
     country=None,
+    tavily_api_key=settings.TAVILY_API_KEY,
 )
