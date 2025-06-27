@@ -119,20 +119,24 @@ async def api_key_or_ip(request: Request) -> str:
 A `429 Too Many Requests` response is returned automatically, but you can customize it inside your app’s exception handlers:
 
 ```python
-from fastapi.exceptions import HTTPException
+def _handle_fastapi_http_exception(self):
+        """Handle FastAPI HTTP exceptions."""
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    if exc.status_code == 429:
-        retry_after = exc.headers.get("Retry-After", 60)
-        return JSONResponse(
-            status_code=429,
-            content={
-                "message": f"Too many requests. Try again in {retry_after} seconds.",
-                "retry_after": retry_after,
-            },
+    @self.app.exception_handler(HTTPException)
+    async def fastapi_http_exception_handler(request: Request, exc: HTTPException):
+        if exc.status_code == 429:
+            headers = getattr(exc, "headers", {})
+            retry_after = int(headers["Retry-After"])
+
+            return await self._create_json_response(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                message=messages.RATE_LIMIT_ERROR.format(retry_after=retry_after),
+                error_log=str(exc),
+            )
+
+        return await self._create_json_response(
+            status_code=exc.status_code, message=exc.detail
         )
-    raise exc
 ```
 
 ---
