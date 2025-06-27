@@ -2,9 +2,9 @@
 
 from fastapi import Depends, Query, Request
 from fastapi.routing import APIRouter
+from fastapi_limiter.depends import RateLimiter
 from fastapi_utils.cbv import cbv
 
-from app.core import limiter
 from app.core.responses import AppJSONResponse, AppStreamingResponse
 
 from .models import ChatRequest, SummaryRequest
@@ -26,8 +26,11 @@ class ChatRoute:
         self.common_dep = common_dep
         self.service = ChatService()
 
-    @router.get("/chat", response_class=AppStreamingResponse)
-    @limiter.limit("5/minute")
+    @router.get(
+        "/chat",
+        response_class=AppStreamingResponse,
+        dependencies=[Depends(RateLimiter(times=5, seconds=60))],
+    )
     async def chat(
         self,
         request: Request,

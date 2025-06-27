@@ -5,7 +5,6 @@ from typing import Any
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import HTTPException, RequestValidationError
 from loguru import logger
-from slowapi.errors import RateLimitExceeded
 
 from app.constants import messages
 from app.core.exceptions import CustomException
@@ -22,7 +21,6 @@ class HandleExceptions:
         self._handle_pydantic_exception()
         self._handle_fastapi_http_exception()
         self._handle_default_exception()
-        self._handle_rate_limit_exception()
 
     def _handle_custom_exception(self):
         """Handle custom exceptions."""
@@ -54,21 +52,18 @@ class HandleExceptions:
 
         @self.app.exception_handler(HTTPException)
         async def fastapi_http_exception_handler(request: Request, exc: HTTPException):
+            if exc.status_code == 429:
+                headers = getattr(exc, "headers", {})
+                retry_after = int(headers["Retry-After"])
+
+                return await self._create_json_response(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    message=messages.RATE_LIMIT_ERROR.format(retry_after=retry_after),
+                    error_log=str(exc),
+                )
+
             return await self._create_json_response(
                 status_code=exc.status_code, message=exc.detail
-            )
-
-    def _handle_rate_limit_exception(self):
-        """Handle rate limit exceeded exceptions."""
-
-        @self.app.exception_handler(RateLimitExceeded)
-        async def rate_limit_exception_handler(
-            request: Request, exc: RateLimitExceeded
-        ):
-            return await self._create_json_response(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                message=messages.RATE_LIMIT_ERROR,
-                error_log=str(exc),
             )
 
     def _handle_default_exception(self):

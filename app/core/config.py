@@ -25,6 +25,13 @@ class CacheBackend(str, enum.Enum):
     LOCAL = "local"
 
 
+class RateLimitBackend(str, enum.Enum):
+    """Supported rate-limit backends."""
+
+    REDIS = "redis"
+    LOCAL = "local"
+
+
 class AppEnvs(str, enum.Enum):
     """Application envs"""
 
@@ -50,6 +57,9 @@ class AppConfig(BaseSettings):
 
     # Cache
     CACHE_BACKEND: CacheBackend = CacheBackend.LOCAL
+
+    # Rate Limit
+    RATE_LIMIT_BACKEND: RateLimitBackend = RateLimitBackend.REDIS
 
     # Redis
     REDIS_HOST: str = ""

@@ -1,111 +1,183 @@
-# 🛡️ Rate Limiting with SlowAPI
+# 🛡️ Rate Limiting with fastapi-limiter
 
-This project integrates request rate limiting using [**SlowAPI**](https://slowapi.readthedocs.io/), a lightweight and extensible rate limiter built specifically for FastAPI. It helps defend your API against abuse, brute force attacks, and accidental overloads.
+This project uses [**fastapi-limiter**](https://github.com/long2ice/fastapi-limiter) to implement scalable, Redis-based rate limiting in your FastAPI app. It protects against abuse, brute force attempts, and excessive traffic by enforcing flexible request thresholds.
 
 ---
 
 ## 🚀 Features
 
-* IP-based or custom key-based rate limiting
-* Flexible and declarative usage with decorators
-* Global or per-route rate limits
-* Automatic `429 Too Many Requests` handling
-* Rate limit headers (e.g. `X-RateLimit-Remaining`, `Retry-After`) for client-side awareness
-
----
-
-## 🔧 Installation
-
-`SlowAPI` is already included in your project dependencies via `pyproject.toml`:
-
-> ✅ No additional setup is needed if you're using the boilerplate.
+- 🔗 Redis-backed distributed rate limiting
+- 🧠 IP or token-based client identification
+- 🪝 Decorator-free, dependency-based integration
+- 🧾 Automatic `429 Too Many Requests` responses
+- 🕒 Native `Retry-After` header support
+- ⚙️ Customizable via `Bearer` tokens, IPs, headers, or API keys
 
 ---
 
 ## ⚙️ Configuration
 
-The rate limiter is typically initialized in your middleware layer, e.g. in `app/core/middlewares/rate_limiter.py`:
+### 🔧 Backend Initialization
+
+Rate limiter is initialized in `app/core/middlewares/rate_limiter.py`:
 
 ```python
-"""Rate limiter configuration and middleware exports."""
+"""Rate limiter configuration using fastapi-limiter."""
 
+import fakeredis.aioredis
+import redis.asyncio as redis
 from fastapi import Request
-from slowapi import Limiter
-from slowapi.middleware import SlowAPIMiddleware
-from slowapi.util import get_remote_address
+from fastapi_limiter import FastAPILimiter
+
+from app.core.config import RateLimitBackend, settings
 
 
-def token_or_ip_key(request: Request) -> str:
-    """Use Bearer token if available, else fallback to IP address."""
+async def token_or_ip_key(request: Request) -> str:
+    """Use Bearer token if available, fallback to client IP."""
     auth_header = request.headers.get("authorization")
     if auth_header and auth_header.lower().startswith("bearer "):
         token = auth_header.removeprefix("Bearer ").strip()
         if token:
             return token
-    # Fallback to IP address
-    return get_remote_address(request)
+    return request.client.host
 
 
-# Create a limiter instance with custom key function
-limiter = Limiter(key_func=token_or_ip_key)
+async def init_rate_limiter():
+    """Initialize FastAPI limiter with Redis or local memory (fakeredis)."""
+
+    if settings.RATE_LIMIT_BACKEND == RateLimitBackend.LOCAL:
+        fake_redis = fakeredis.aioredis.FakeRedis(decode_responses=True)
+        await FastAPILimiter.init(redis=fake_redis, identifier=token_or_ip_key)
+
+    elif settings.RATE_LIMIT_BACKEND == RateLimitBackend.REDIS:
+        redis_url = f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}"
+        if settings.REDIS_PASSWORD:
+            redis_url = f"redis://:{settings.REDIS_PASSWORD}@{settings.REDIS_HOST}:{settings.REDIS_PORT}"
+
+        redis_client = redis.from_url(redis_url, decode_responses=True)
+        await FastAPILimiter.init(redis=redis_client, identifier=token_or_ip_key)
+
+    else:
+        raise ValueError(
+            f"Unsupported RATE_LIMIT_BACKEND: {settings.RATE_LIMIT_BACKEND}"
+        )
+```
+
+### ⚡ Lifespan Hook
+
+Call it inside your app’s `lifespan` startup:
+
+```python
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
+from .middlewares.rate_limiter import init_rate_limiter
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_rate_limiter()
+    yield
 ```
 
 ---
 
-## 🧩 Usage
+## 🧩 Usage in Routes
 
-### 📌 Apply Global Rate Limit
+### ✅ Limit Requests per IP/Token
 
-Add decorators to endpoints to enforce limits:
+Use the `RateLimiter` dependency in route decorators:
 
 ```python
-@app.get("/ping")
-@limiter.limit("10/minute")
+from fastapi import APIRouter, Depends
+from fastapi_limiter.depends import RateLimiter
+
+router = APIRouter()
+
+@router.get("/ping", dependencies=[Depends(RateLimiter(times=10, seconds=60))])
 async def ping():
     return {"message": "pong"}
 ```
 
-### 🎯 Per Route Rate Limits
+This will limit requests to **10 per 60 seconds** per token or IP.
 
-You can customize the limit per endpoint:
+---
 
-```python
-@router.get("/secure-endpoint")
-@limiter.limit("5/minute")
-async def secure_data():
-    return {"message": "Only 5 requests allowed per minute."}
-```
+## 🧠 Custom Key Strategies
 
-### 🧠 Custom Key Functions
-
-Use request headers or tokens to identify unique clients:
+You can implement any logic in `token_or_ip_key`, for example:
 
 ```python
-def custom_key_func(request: Request):
-    return request.headers.get("X-API-KEY") or get_remote_address(request)
-
-limiter = Limiter(key_func=custom_key_func)
+# Use X-API-KEY header
+async def api_key_or_ip(request: Request) -> str:
+    return request.headers.get("X-API-KEY") or request.client.host
 ```
 
 ---
 
-## 🚨 Handling Abuse Gracefully
+## 🛑 Handling 429 Responses
 
-* Customize the `RateLimitExceeded` handler for better error messaging
-* Log blocked requests for auditing or alerting
-* Adjust rate limits based on the route sensitivity or user role
+A `429 Too Many Requests` response is returned automatically, but you can customize it inside your app’s exception handlers:
+
+```python
+from fastapi.exceptions import HTTPException
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    if exc.status_code == 429:
+        retry_after = exc.headers.get("Retry-After", 60)
+        return JSONResponse(
+            status_code=429,
+            content={
+                "message": f"Too many requests. Try again in {retry_after} seconds.",
+                "retry_after": retry_after,
+            },
+        )
+    raise exc
+```
 
 ---
 
-## ✅ Best Practices
+## 🐳 Redis Setup for Local Dev
 
-* Set stricter limits on login or write-heavy routes
-* Use descriptive error messages on `429` responses
-* Add retry headers (`Retry-After`) to help clients recover
-* Monitor metrics and logs for rate limit events
+You can use Docker to run Redis locally:
+
+```bash
+docker run -d --name dev-redis -p 6379:6379 redis:7-alpine
+```
+
+### Optional: RedisInsight for UI
+
+```bash
+docker run -d -p 8001:8001 --name redis-insight \
+  --link dev-redis:redis \
+  redis/redisinsight:latest
+```
+
+Access at: [http://localhost:8001](http://localhost:8001)
+
+---
+
+## 🧪 Testing Without Redis
+
+Use `fakeredis` as a memory backend for tests/dev:
+
+```env
+RATE_LIMIT_BACKEND=LOCAL
+```
+
+---
+
+## 🧠 Best Practices
+
+- ✅ Use token-based keys for user-based throttling
+- ✅ Apply stricter limits on sensitive routes like `/login`, `/register`
+- ✅ Always return `Retry-After` to guide clients
+- ✅ Use namespaces or DB separation in Redis for staging vs prod
 
 ---
 
 ## 📚 References
 
-* 📘 [SlowAPI Documentation](https://slowapi.readthedocs.io/)
+- 📘 [fastapi-limiter GitHub](https://github.com/long2ice/fastapi-limiter)
+- 📘 [Redis Docs](https://redis.io/docs/)
+- 📘 [RedisInsight UI](https://redis.com/redis-enterprise/redis-insight/)
