@@ -80,7 +80,7 @@ This template empowers you to build robust, scalable, and maintainable APIs with
   Full observability using `loguru`, with structured logs, X-Request-ID headers, and performance metrics.
 
 - 🛡️ **Rate Limiting Middleware**
-  Protect endpoints from abuse using `slowapi`, based on identity/IP-based throttling.
+  Protect endpoints from abuse using `fastapi-limiter`, based on identity/IP-based throttling.
 
 - 🐳 **Dockerized Deployment**
   Container-first architecture with clean Dockerfile and production startup scripts using Gunicorn + Uvicorn.
@@ -102,7 +102,7 @@ This template empowers you to build robust, scalable, and maintainable APIs with
 | Dependency Mgmt  | [UV](https://docs.astral.sh/uv/) |
 | Configuration    | [Pydantic](https://pydantic.dev/) |
 | Logging          | [Loguru](https://loguru.readthedocs.io/) |
-| Rate Limiting    | [SlowAPI](https://slowapi.readthedocs.io/) |
+| Rate Limiting    | [FastAPI-Limiter](https://github.com/long2ice/fastapi-limiter) |
 | Linting/Checks   | [Ruff](https://beta.ruff.rs/), [Black](https://black.readthedocs.io/), [MyPy](https://mypy-lang.org/), [isort](https://pycqa.github.io/isort/) |
 | CI & Hooks       | [pre-commit](https://pre-commit.com/) |
 | Containerization | [Docker](https://www.docker.com/) |
@@ -389,7 +389,7 @@ cache = Cache(
 To prevent cache pollution by brute-force query changes:
 
 * Normalize/cache keys using request fingerprinting
-* Apply rate-limiting middleware (already included via `slowapi`)
+* Apply rate-limiting middleware (already included via `fastapi-limiter`)
 * Use checksum-based cache keys (e.g. `hashlib.sha256(json.dumps(payload))`)
 
 ### 📦 Docker Redis Setup
@@ -417,7 +417,7 @@ docker-compose down
 - 🛠️ [Makefile Commands](docs/makefile.md)
 - 🌍 [Environment Variables](docs/envs.md)
 - 🐳 [Docker Compose Setup](docs/docker-compose.md)
-- 🛡️ [Rate Limiting with SlowAPI](docs/rate_limit.md)
+- 🛡️ [Rate Limiting with FastAPI-Limiter](docs/rate_limit.md)
 - 🧭 [Trace Decorator](docs/trace.md)
 
 ---
