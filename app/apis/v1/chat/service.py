@@ -6,7 +6,7 @@ import json
 from typing import Any, AsyncGenerator, Callable, Tuple
 
 from celery.result import AsyncResult
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessageChunk, HumanMessage
 from loguru import logger
 
 from app import cache, celery_app, trace
@@ -76,6 +76,7 @@ class ChatService:
     async def chat_websearch_service(
         self, request_params: WebSearchChatRequest
     ) -> Callable[[], AsyncGenerator[str, None]]:
+        """Handles streaming chat responses with integrated web search results."""
 
         # Compile the LangGraph agent
         graph = WebSearchAgentGraph().compile()
@@ -92,20 +93,30 @@ class ChatService:
 
         # Run the workflow and get the final state
         async def stream() -> AsyncGenerator[str, None]:
+            citation_map = {}
 
-            for message_chunk, metadata in graph.stream(
+            for mode, chunk in graph.stream(
                 input=state_input,
                 config={"configurable": {"thread_id": str(request_params.thread_id)}},
-                stream_mode="messages",
+                stream_mode=["messages", "custom"],
             ):
 
-                if (
-                    message_chunk.content
-                    and isinstance(metadata, dict)
-                    and metadata.get("langgraph_node") == "answer_generation"
-                ):
-                    logger.debug(message_chunk.content)
-                    yield f"event: content\ndata: {message_chunk.content}\n\n"
+                if mode == "custom":
+                    citation_map = chunk.get("citation_map", {})
+                    yield f"event: citation\ndata: {citation_map}\n\n"
+
+                if mode == "messages":
+                    _chunk, metadata = chunk[0], chunk[1]
+                    langgraph_node = metadata.get("langgraph_node")
+
+                    if (
+                        hasattr(_chunk, "content")
+                        and _chunk.content
+                        and langgraph_node == "answer_generation"
+                        and isinstance(_chunk, AIMessageChunk)
+                    ):
+                        logger.debug(_chunk)
+                        yield f"event: content\ndata: {_chunk.content}\n\n"
 
             yield "event: complete\ndata: [DONE]\n\n"
 

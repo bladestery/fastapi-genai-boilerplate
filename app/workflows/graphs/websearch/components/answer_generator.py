@@ -6,6 +6,7 @@ from typing import Dict, List
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langgraph.config import get_stream_writer
 from loguru import logger
 from pydantic import SecretStr
 
@@ -42,6 +43,10 @@ class AnswerGenerator:
         for key, result in result_blocks.items():
             content = result.get("content", "").strip()
             combined_content += f"{key}. {content}\n\n"
+
+        # Stream citation
+        writer = get_stream_writer()
+        writer({"citation_map": result_blocks})
 
         rag_prompt = RAG_PROMPT.format(
             context=combined_content, question=state["question"].content
