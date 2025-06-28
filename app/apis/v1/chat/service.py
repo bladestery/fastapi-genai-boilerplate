@@ -96,7 +96,7 @@ class ChatService:
             for message_chunk, metadata in graph.stream(
                 input=state_input,
                 config={"configurable": {"thread_id": str(request_params.thread_id)}},
-                stream_mode=["messages"],
+                stream_mode="messages",
             ):
 
                 if (
@@ -104,7 +104,10 @@ class ChatService:
                     and isinstance(metadata, dict)
                     and metadata.get("langgraph_node") == "answer_generation"
                 ):
-                    yield message_chunk.content
+                    logger.debug(message_chunk.content)
+                    yield f"event: content\ndata: {message_chunk.content}\n\n"
+
+            yield "event: complete\ndata: [DONE]\n\n"
 
         return stream
 
