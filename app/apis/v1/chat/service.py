@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+import re
 from typing import Any, AsyncGenerator, Callable, Tuple
 
 from celery.result import AsyncResult
@@ -26,6 +27,10 @@ class ChatService:
     def _hash_request(payload: dict) -> str:
         """Generate a unique cache key from request payload."""
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+
+    @staticmethod
+    def _is_superscript_char(c: str) -> bool:
+        return c in "⁰¹²³⁴⁵⁶⁷⁸⁹"
 
     @trace(name="chat_service")
     async def chat_service(
@@ -94,6 +99,7 @@ class ChatService:
         # Run the workflow and get the final state
         async def stream() -> AsyncGenerator[str, None]:
             citation_map = {}
+            superscript_buffer = ""
 
             for mode, chunk in graph.stream(
                 input=state_input,
@@ -116,7 +122,24 @@ class ChatService:
                         and isinstance(_chunk, AIMessageChunk)
                     ):
                         logger.debug(_chunk)
-                        yield f"event: content\ndata: {_chunk.content}\n\n"
+
+                        content = str(_chunk.content)
+
+                        # Accumulate superscript characters
+                        if all(self._is_superscript_char(c) for c in content):
+                            superscript_buffer += content
+                            continue
+
+                        # If buffer exists, prepend and clear
+                        if superscript_buffer:
+                            content = superscript_buffer + content
+                            superscript_buffer = ""
+
+                        # Replace superscript citations with placeholder
+                        cleaned = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", "[CITATION]", content)
+
+                        # Stream the cleaned content
+                        yield f"event: content\ndata: {cleaned}\n\n"
 
             yield "event: complete\ndata: [DONE]\n\n"
 
