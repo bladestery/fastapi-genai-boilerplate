@@ -297,7 +297,7 @@ docker-compose up --build
 | Service       | URL                                              | Host Port | Container Port |
 | ------------- | ------------------------------------------------ | --------- | -------------- |
 | FastAPI       | [http://localhost:8002](http://localhost:8002)   | `8002`    | `8002`         |
-| Prometheus    | [http://localhost:9090](http://localhost:9090)   | `9090`    | `9090`         |
+| Prometheus    | [http://localhost:9091](http://localhost:9091)   | `9091`    | `9091`         |
 | Grafana       | [http://localhost:3000](http://localhost:3000)   | `3000`    | `3000`         |
 | RedisInsight  | [http://localhost:8001](http://localhost:8001)   | `8001`    | `8001`         |
 

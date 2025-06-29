@@ -1,7 +1,11 @@
 """LangGraph agent graph setup using class-based node components."""
 
+from langfuse import Langfuse, get_client
+from langfuse.langchain import CallbackHandler
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, StateGraph
+
+from app import settings
 
 from .components.answer_generator import AnswerGenerator
 from .components.conditional_edges import route_after_question_rewrite
@@ -11,6 +15,13 @@ from .components.websearch_executor import WebSearchExecutor
 from .states import AgentState
 
 checkpointer = InMemorySaver()
+Langfuse(
+    public_key=settings.LANGFUSE_PUBLIC_KEY,
+    secret_key=settings.LANGFUSE_SECRET_KEY,
+    host=settings.LANGFUSE_HOST,
+)
+langfuse = get_client()
+langfuse_handler = CallbackHandler(public_key=settings.LANGFUSE_PUBLIC_KEY)
 
 
 class WebSearchAgentGraph:
@@ -54,4 +65,6 @@ class WebSearchAgentGraph:
 
     def compile(self):
         """Compile the LangGraph workflow with checkpointer."""
-        return self.workflow.compile(checkpointer=checkpointer)
+        return self.workflow.compile(checkpointer=checkpointer).with_config(
+            {"callbacks": [langfuse_handler]}
+        )

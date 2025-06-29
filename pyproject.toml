@@ -30,6 +30,7 @@ dependencies = [
   "fastapi-limiter>=0.1.6",
   "fakeredis[lua]>=2.30.1",
   "langchain-openai>=0.3.26",
+  "langfuse>=3.0.8",
 ]
 
 [project.optional-dependencies]

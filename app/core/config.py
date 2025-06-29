@@ -70,6 +70,11 @@ class AppConfig(BaseSettings):
     OPENAI_API_KEY: str = ""
     TAVILY_API_KEY: str = ""
 
+    # LangFuse
+    LANGFUSE_HOST: str = ""
+    LANGFUSE_PUBLIC_KEY: str = ""
+    LANGFUSE_SECRET_KEY: str = ""
+
 
 # Initialize configuration settings
 settings = AppConfig()
