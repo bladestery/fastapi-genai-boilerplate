@@ -30,6 +30,10 @@
   <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/uv-55BB8E?logo=python&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white&style=flat-square" />
+  <img src="https://img.shields.io/badge/LangChain-ffffff?logo=langchain&logoColor=green" />
+  <img src="https://img.shields.io/badge/LangGraph-ffffff?style=flat-square&color=3b82f6" />
+  <img src="https://img.shields.io/badge/Langfuse-ffffff?style=flat-square&color=00A8E8" />
+
 
 </p>
 
@@ -411,6 +415,43 @@ docker-compose down
 
 ---
 
+## 📊 Langfuse Integration
+
+This boilerplate is compatible with [Langfuse](https://www.langfuse.com/) for observability, tracing, and debugging of LLM-based applications.
+
+### ✅ Features
+
+* Trace all API interactions and GenAI requests
+* View detailed logs, timings, metadata, and user sessions
+* Works with OpenAI, Anthropic, HuggingFace, and custom model providers
+
+### ⚙️ Setup Instructions
+
+1. **Start Langfuse via Docker Compose**
+
+   ```bash
+   docker compose -f docker-compose-langfuse.yaml up -d
+   ```
+
+2. **Access the Langfuse UI**
+
+   Open your browser at [http://localhost:3000](http://localhost:3000)
+
+3. **Sign Up & Create Project**
+
+   * Register your admin user
+   * Create a new project
+   * Copy the **Public** and **Secret** API keys
+
+4. **Add Langfuse Credentials to `.env`**
+
+   ```env
+   LANGFUSE_HOST=http://localhost:3000
+   LANGFUSE_PUBLIC_KEY=your-public-key-here
+   LANGFUSE_SECRET_KEY=your-secret-key-here
+   ```
+---
+
 ## 🧩 Documentation
 
 - 🧠 [Logging Middleware](docs/logging.md)
@@ -419,7 +460,7 @@ docker-compose down
 - 🐳 [Docker Compose Setup](docs/docker-compose.md)
 - 🛡️ [Rate Limiting with FastAPI-Limiter](docs/rate_limit.md)
 - 🧭 [Trace Decorator](docs/trace.md)
-
+- 📊 [Langfuse Integration Guide](docs/langfuse.md)
 ---
 
 ## 🤝 Contributing
