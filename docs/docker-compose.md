@@ -47,7 +47,7 @@ Update the credentials in your `.env` or `provisioning` files as needed.
 | ------------ | ---------------------------------------------- | ---- |
 | FastAPI      | [http://localhost:8002](http://localhost:8002) | 8002 |
 | RedisInsight | [http://localhost:8001](http://localhost:8001) | 8001 |
-| Prometheus   | [http://localhost:9090](http://localhost:9090) | 9090 |
+| Prometheus   | [http://localhost:9091](http://localhost:9091) | 9091 |
 | Grafana      | [http://localhost:3000](http://localhost:3000) | 3000 |
 | Loki         | [http://localhost:3100](http://localhost:3100) | 3100 |
 

@@ -30,6 +30,10 @@
   <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/uv-55BB8E?logo=python&logoColor=white&style=flat-square" />
   <img src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white&style=flat-square" />
+  <img src="https://img.shields.io/badge/LangChain-ffffff?logo=langchain&logoColor=green" />
+  <img src="https://img.shields.io/badge/LangGraph-ffffff?style=flat-square&color=3b82f6" />
+  <img src="https://img.shields.io/badge/Langfuse-ffffff?style=flat-square&color=00A8E8" />
+
 
 </p>
 
@@ -80,7 +84,7 @@ This template empowers you to build robust, scalable, and maintainable APIs with
   Full observability using `loguru`, with structured logs, X-Request-ID headers, and performance metrics.
 
 - 🛡️ **Rate Limiting Middleware**
-  Protect endpoints from abuse using `slowapi`, based on identity/IP-based throttling.
+  Protect endpoints from abuse using `fastapi-limiter`, based on identity/IP-based throttling.
 
 - 🐳 **Dockerized Deployment**
   Container-first architecture with clean Dockerfile and production startup scripts using Gunicorn + Uvicorn.
@@ -102,7 +106,7 @@ This template empowers you to build robust, scalable, and maintainable APIs with
 | Dependency Mgmt  | [UV](https://docs.astral.sh/uv/) |
 | Configuration    | [Pydantic](https://pydantic.dev/) |
 | Logging          | [Loguru](https://loguru.readthedocs.io/) |
-| Rate Limiting    | [SlowAPI](https://slowapi.readthedocs.io/) |
+| Rate Limiting    | [FastAPI-Limiter](https://github.com/long2ice/fastapi-limiter) |
 | Linting/Checks   | [Ruff](https://beta.ruff.rs/), [Black](https://black.readthedocs.io/), [MyPy](https://mypy-lang.org/), [isort](https://pycqa.github.io/isort/) |
 | CI & Hooks       | [pre-commit](https://pre-commit.com/) |
 | Containerization | [Docker](https://www.docker.com/) |
@@ -297,7 +301,7 @@ docker-compose up --build
 | Service       | URL                                              | Host Port | Container Port |
 | ------------- | ------------------------------------------------ | --------- | -------------- |
 | FastAPI       | [http://localhost:8002](http://localhost:8002)   | `8002`    | `8002`         |
-| Prometheus    | [http://localhost:9090](http://localhost:9090)   | `9090`    | `9090`         |
+| Prometheus    | [http://localhost:9091](http://localhost:9091)   | `9091`    | `9091`         |
 | Grafana       | [http://localhost:3000](http://localhost:3000)   | `3000`    | `3000`         |
 | RedisInsight  | [http://localhost:8001](http://localhost:8001)   | `8001`    | `8001`         |
 
@@ -389,7 +393,7 @@ cache = Cache(
 To prevent cache pollution by brute-force query changes:
 
 * Normalize/cache keys using request fingerprinting
-* Apply rate-limiting middleware (already included via `slowapi`)
+* Apply rate-limiting middleware (already included via `fastapi-limiter`)
 * Use checksum-based cache keys (e.g. `hashlib.sha256(json.dumps(payload))`)
 
 ### 📦 Docker Redis Setup
@@ -411,15 +415,52 @@ docker-compose down
 
 ---
 
+## 📊 Langfuse Integration
+
+This boilerplate is compatible with [Langfuse](https://www.langfuse.com/) for observability, tracing, and debugging of LLM-based applications.
+
+### ✅ Features
+
+* Trace all API interactions and GenAI requests
+* View detailed logs, timings, metadata, and user sessions
+* Works with OpenAI, Anthropic, HuggingFace, and custom model providers
+
+### ⚙️ Setup Instructions
+
+1. **Start Langfuse via Docker Compose**
+
+   ```bash
+   docker compose -f docker-compose-langfuse.yaml up -d
+   ```
+
+2. **Access the Langfuse UI**
+
+   Open your browser at [http://localhost:3000](http://localhost:3000)
+
+3. **Sign Up & Create Project**
+
+   * Register your admin user
+   * Create a new project
+   * Copy the **Public** and **Secret** API keys
+
+4. **Add Langfuse Credentials to `.env`**
+
+   ```env
+   LANGFUSE_HOST=http://localhost:3000
+   LANGFUSE_PUBLIC_KEY=your-public-key-here
+   LANGFUSE_SECRET_KEY=your-secret-key-here
+   ```
+---
+
 ## 🧩 Documentation
 
 - 🧠 [Logging Middleware](docs/logging.md)
 - 🛠️ [Makefile Commands](docs/makefile.md)
 - 🌍 [Environment Variables](docs/envs.md)
 - 🐳 [Docker Compose Setup](docs/docker-compose.md)
-- 🛡️ [Rate Limiting with SlowAPI](docs/rate_limit.md)
+- 🛡️ [Rate Limiting with FastAPI-Limiter](docs/rate_limit.md)
 - 🧭 [Trace Decorator](docs/trace.md)
-
+- 📊 [Langfuse Integration Guide](docs/langfuse.md)
 ---
 
 ## 🤝 Contributing

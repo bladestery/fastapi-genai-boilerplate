@@ -2,9 +2,9 @@
 
 from fastapi import Depends, Request
 from fastapi.routing import APIRouter
+from fastapi_limiter.depends import RateLimiter
 from fastapi_utils.cbv import cbv
 
-from app.core import limiter
 from app.core.responses import AppJSONResponse
 
 from .models import CreateUserRequest
@@ -27,8 +27,11 @@ class UserRoute:
         self.common_dep = common_dep
         self.service = UserService()
 
-    @router.post("/user", response_class=AppJSONResponse)
-    @limiter.limit("5/minute")
+    @router.post(
+        "/user",
+        response_class=AppJSONResponse,
+        dependencies=[Depends(RateLimiter(times=5, seconds=60))],
+    )
     async def create_user(self, request: Request, request_params: CreateUserRequest):
         """Create a new user."""
         data, message, status_code = await self.service.create_user_service(

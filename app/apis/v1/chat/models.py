@@ -17,6 +17,17 @@ class ChatRequest(BaseModel):
     )
 
 
+class WebSearchChatRequest(BaseModel):
+    """Request model for initiating a web search-based chat response."""
+
+    question: str = Field(
+        description="The user's input question to be processed for web search and answer generation."
+    )
+    thread_id: str = Field(
+        description="Unique identifier for the chat thread to maintain context across requests."
+    )
+
+
 class SummaryRequest(BaseModel):
     """Request model for submitting text to the summary task."""
 

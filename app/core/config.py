@@ -18,6 +18,20 @@ class LogLevel(str, enum.Enum):
     TRACE = "TRACE"
 
 
+class CacheBackend(str, enum.Enum):
+    """Supported cache backends."""
+
+    REDIS = "redis"
+    LOCAL = "local"
+
+
+class RateLimitBackend(str, enum.Enum):
+    """Supported rate-limit backends."""
+
+    REDIS = "redis"
+    LOCAL = "local"
+
+
 class AppEnvs(str, enum.Enum):
     """Application envs"""
 
@@ -41,10 +55,25 @@ class AppConfig(BaseSettings):
     PORT: int = 8002
     WORKER_COUNT: Union[int, None] = None
 
+    # Cache
+    CACHE_BACKEND: CacheBackend = CacheBackend.LOCAL
+
+    # Rate Limit
+    RATE_LIMIT_BACKEND: RateLimitBackend = RateLimitBackend.REDIS
+
     # Redis
     REDIS_HOST: str = ""
     REDIS_PORT: str = ""
     REDIS_PASSWORD: str = ""
+
+    # OPENAI Model
+    OPENAI_API_KEY: str = ""
+    TAVILY_API_KEY: str = ""
+
+    # LangFuse
+    LANGFUSE_HOST: str = ""
+    LANGFUSE_PUBLIC_KEY: str = ""
+    LANGFUSE_SECRET_KEY: str = ""
 
 
 # Initialize configuration settings

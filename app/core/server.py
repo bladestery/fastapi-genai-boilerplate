@@ -11,7 +11,7 @@ from app.apis import api_routers
 from app.core.config import settings
 from app.core.exceptions import HandleExceptions
 from app.core.lifespan import lifespan
-from app.core.middlewares import LoggingMiddleware, SlowAPIMiddleware
+from app.core.middlewares import LoggingMiddleware
 
 
 def configure_middleware() -> List[Middleware]:
@@ -25,7 +25,6 @@ def configure_middleware() -> List[Middleware]:
             allow_headers=["*"],
         ),
         Middleware(LoggingMiddleware),
-        Middleware(SlowAPIMiddleware),
     ]
 
 

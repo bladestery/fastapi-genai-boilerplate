@@ -3,15 +3,19 @@
 import asyncio
 import hashlib
 import json
+import re
 from typing import Any, AsyncGenerator, Callable, Tuple
 
 from celery.result import AsyncResult
+from langchain_core.messages import AIMessageChunk, HumanMessage
 from loguru import logger
 
 from app import cache, celery_app, trace
 from app.tasks.chat import generate_summary
 
-from .models import ChatRequest
+from ....workflows.graphs.websearch import WebSearchAgentGraph
+from .helper import CitationReplacer
+from .models import ChatRequest, WebSearchChatRequest
 
 
 class ChatService:
@@ -19,6 +23,7 @@ class ChatService:
 
     def __init__(self) -> None:
         """Initialize the chat service."""
+        pass
 
     @staticmethod
     def _hash_request(payload: dict) -> str:
@@ -67,6 +72,75 @@ class ChatService:
 
             await cache.set(cache_key, buffer)
             logger.info(f"Response cached under key: {cache_key}")
+
+        return stream
+
+    @trace(name="chat_websearch_service")
+    async def chat_websearch_service(
+        self, request_params: WebSearchChatRequest
+    ) -> Callable[[], AsyncGenerator[str, None]]:
+        """Handles streaming chat responses with integrated web search results."""
+
+        # Compile the LangGraph agent
+        graph = WebSearchAgentGraph().compile()
+
+        # Prepare initial input for agent execution
+        state_input = {
+            "question": HumanMessage(content=request_params.question),
+            "refined_question": "",
+            "require_enhancement": False,
+            "questions": [],
+            "search_results": [],
+            "messages": [HumanMessage(content=request_params.question)],
+        }
+
+        # Run the workflow and get the final state
+        async def stream() -> AsyncGenerator[str, None]:
+            raw_citation_map = {}
+            superscript_buffer = ""
+            replacer = CitationReplacer()
+
+            for mode, chunk in graph.stream(
+                input=state_input,
+                config={"configurable": {"thread_id": str(request_params.thread_id)}},
+                stream_mode=["messages", "custom"],
+            ):
+                if mode == "custom":
+                    raw_citation_map.update(chunk.get("citation_map", {}))
+
+                elif mode == "messages":
+                    _chunk, metadata = chunk[0], chunk[1]
+                    langgraph_node = metadata.get("langgraph_node")
+
+                    if (
+                        hasattr(_chunk, "content")
+                        and _chunk.content
+                        and langgraph_node == "answer_generation"
+                        and isinstance(_chunk, AIMessageChunk)
+                    ):
+                        logger.debug(_chunk)
+
+                        content = str(_chunk.content)
+
+                        if replacer.is_superscript(content):
+                            superscript_buffer += content
+                            continue
+
+                        if superscript_buffer:
+                            content = superscript_buffer + content
+                            superscript_buffer = ""
+
+                        cleaned = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", replacer.replace, content)
+                        yield f"event: content\ndata: {cleaned}\n\n"
+
+            final_citation_map = {
+                str(replacer.superscript_to_index[k]): raw_citation_map[k]
+                for k in replacer.superscript_to_index
+                if k in raw_citation_map
+            }
+
+            yield f"event: citation\ndata: {final_citation_map}\n\n"
+            yield "event: complete\ndata: [DONE]\n\n"
 
         return stream
 
