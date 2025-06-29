@@ -14,6 +14,7 @@ from app import cache, celery_app, trace
 from app.tasks.chat import generate_summary
 
 from ....workflows.graphs.websearch import WebSearchAgentGraph
+from .helper import CitationReplacer
 from .models import ChatRequest, WebSearchChatRequest
 
 
@@ -22,15 +23,12 @@ class ChatService:
 
     def __init__(self) -> None:
         """Initialize the chat service."""
+        pass
 
     @staticmethod
     def _hash_request(payload: dict) -> str:
         """Generate a unique cache key from request payload."""
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
-
-    @staticmethod
-    def _is_superscript_char(c: str) -> bool:
-        return c in "⁰¹²³⁴⁵⁶⁷⁸⁹"
 
     @trace(name="chat_service")
     async def chat_service(
@@ -98,20 +96,19 @@ class ChatService:
 
         # Run the workflow and get the final state
         async def stream() -> AsyncGenerator[str, None]:
-            citation_map = {}
+            raw_citation_map = {}
             superscript_buffer = ""
+            replacer = CitationReplacer()
 
             for mode, chunk in graph.stream(
                 input=state_input,
                 config={"configurable": {"thread_id": str(request_params.thread_id)}},
                 stream_mode=["messages", "custom"],
             ):
-
                 if mode == "custom":
-                    citation_map = chunk.get("citation_map", {})
-                    yield f"event: citation\ndata: {citation_map}\n\n"
+                    raw_citation_map.update(chunk.get("citation_map", {}))
 
-                if mode == "messages":
+                elif mode == "messages":
                     _chunk, metadata = chunk[0], chunk[1]
                     langgraph_node = metadata.get("langgraph_node")
 
@@ -125,22 +122,24 @@ class ChatService:
 
                         content = str(_chunk.content)
 
-                        # Accumulate superscript characters
-                        if all(self._is_superscript_char(c) for c in content):
+                        if replacer.is_superscript(content):
                             superscript_buffer += content
                             continue
 
-                        # If buffer exists, prepend and clear
                         if superscript_buffer:
                             content = superscript_buffer + content
                             superscript_buffer = ""
 
-                        # Replace superscript citations with placeholder
-                        cleaned = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", "[CITATION]", content)
-
-                        # Stream the cleaned content
+                        cleaned = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", replacer.replace, content)
                         yield f"event: content\ndata: {cleaned}\n\n"
 
+            final_citation_map = {
+                str(replacer.superscript_to_index[k]): raw_citation_map[k]
+                for k in replacer.superscript_to_index
+                if k in raw_citation_map
+            }
+
+            yield f"event: citation\ndata: {final_citation_map}\n\n"
             yield "event: complete\ndata: [DONE]\n\n"
 
         return stream

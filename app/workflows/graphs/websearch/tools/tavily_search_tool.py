@@ -6,7 +6,7 @@ from langchain_tavily import TavilySearch
 from app import settings
 
 TAVILY_SEARCH_TOOL: BaseTool = TavilySearch(
-    max_results=5,
+    max_results=10,
     topic="general",
     include_answer=False,
     include_raw_content=False,

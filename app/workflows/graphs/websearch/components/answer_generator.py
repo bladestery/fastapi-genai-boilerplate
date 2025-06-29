@@ -65,6 +65,8 @@ class AnswerGenerator:
         )
         conversation.append(HumanMessage(content=rag_prompt))
         prompt = ChatPromptTemplate.from_messages(conversation)
+
+        logger.info(f"Prompt constructed for answer generation: {prompt}")
         answer = self.llm.invoke(prompt.format())
         logger.info(f"Final Answer Generated:\n{answer.content}")
 

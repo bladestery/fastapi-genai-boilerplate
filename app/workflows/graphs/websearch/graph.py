@@ -1,5 +1,6 @@
 """LangGraph agent graph setup using class-based node components."""
 
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, StateGraph
 
 from .components.answer_generator import AnswerGenerator
@@ -8,6 +9,8 @@ from .components.question_enhancer import QuestionEnhancer
 from .components.question_rewriter import QuestionRewriter
 from .components.websearch_executor import WebSearchExecutor
 from .states import AgentState
+
+checkpointer = InMemorySaver()
 
 
 class WebSearchAgentGraph:
@@ -51,4 +54,4 @@ class WebSearchAgentGraph:
 
     def compile(self):
         """Compile the LangGraph workflow with checkpointer."""
-        return self.workflow.compile()
+        return self.workflow.compile(checkpointer=checkpointer)

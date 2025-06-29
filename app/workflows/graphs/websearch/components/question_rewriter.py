@@ -1,8 +1,8 @@
 """Question rewriter components"""
 
-from typing import Dict
+from typing import Dict, List
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from loguru import logger
@@ -40,12 +40,24 @@ class QuestionRewriter:
             strict=True,
         )
 
+    @staticmethod
+    def delete_messages(state: AgentState) -> Dict[str, List]:
+        """Removes all messages except the last 10 from the conversation state."""
+        messages = state["messages"]
+        if len(messages) > 10:
+            # Keep only the last 10 messages
+            to_remove = messages[:-10]  # All except last 10
+            return {"messages": [RemoveMessage(id=m.id) for m in to_remove]}
+        else:
+            return {"messages": messages}
+
     def rewrite(self, state: AgentState) -> Dict:
         """
         Rewrites the question using chat history for context.
         """
 
         conversation = state["messages"][:-1] if len(state["messages"]) > 1 else []
+        conversation = self.delete_messages(state=state)["messages"]
 
         current_question = state["question"].content
         conversation.insert(
