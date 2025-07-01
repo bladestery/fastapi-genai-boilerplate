@@ -39,10 +39,25 @@
 
 ---
 
+> 🚀 **Why This Boilerplate?**
+>
+> Most FastAPI AI boilerplates lack production-readiness and multi-agent capabilities.
+>
+> This project solves that with:
+> 
+> - 🧩 Modular architecture for **multiple LangGraph workflows**, agents, and pipelines  
+> - 🔍 Integrated **Langfuse tracing** for debugging & observability  
+> - 🐳 **Production-ready** deployment using Docker + Gunicorn  
+> - 🧠 Optimized for **AI workflow orchestration** and scalable GenAI apps  
+>
+> 📘 **For in-depth documentation**, visit the [`/docs`](./docs) folder.
+
+---
+
 ## 📂 Table of Contents
 
 - [Overview](#-overview)
-- [Why Use This Boilerplate?](#-why-use-this-boilerplate)
+- [What Makes It Stand Out](#-what-makes-it-stand-out)
 - [Tech Stack](#-tech-stack)
 - [Folder Structure](#-folder-structure)
 - [Getting Started](#-getting-started)
@@ -73,7 +88,7 @@
 
 ---
 
-## 🔍 Why Use This Boilerplate?
+## 🌟 What Makes It Stand Out
 
 This template empowers you to build robust, scalable, and maintainable APIs with:
 
