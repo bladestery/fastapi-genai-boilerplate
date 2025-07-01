@@ -492,3 +492,7 @@ You're welcome to contribute! Please:
 ## 📄 License
 
 This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
+
+---
+
+[![Star History Chart](https://api.star-history.com/svg?repos=kevaldekivadiya2415/fastapi-genai-boilerplate&type=Date)](https://star-history.com/#kevaldekivadiya/fastapi-genai-boilerplate&Date)
