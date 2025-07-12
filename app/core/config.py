@@ -70,6 +70,14 @@ class AppConfig(BaseSettings):
     OPENAI_API_KEY: str = ""
     TAVILY_API_KEY: str = ""
 
+    # Local Model (LM Studio)
+    LOCAL_MODEL_URL: str = "http://127.0.0.1:1234"
+    USE_LOCAL_MODEL: bool = False  # Default to OpenAI, can be overridden
+
+    # Search Provider Configuration
+    SEARCH_PROVIDER: str = "duckduckgo"  # "duckduckgo" or "tavily"
+    DUCKDUCKGO_MAX_RESULTS: int = 10
+
     # LangFuse
     LANGFUSE_HOST: str = ""
     LANGFUSE_PUBLIC_KEY: str = ""

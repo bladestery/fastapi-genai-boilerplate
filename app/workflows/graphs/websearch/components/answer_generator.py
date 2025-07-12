@@ -5,13 +5,11 @@ from typing import Dict, List
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
 from langgraph.config import get_stream_writer
 from loguru import logger
-from pydantic import SecretStr
 
 from app import settings
-
+from ..local_model_client import LocalModelClient
 from ..model_map import LLMModelMap
 from ..prompts import RAG_PROMPT, SYSTEM_PROMPT
 from ..states import AgentState
@@ -21,10 +19,15 @@ class AnswerGenerator:
     """Agent component responsible for synthesizing a final answer from retrieved web content."""
 
     def __init__(self):
-        self.llm = ChatOpenAI(
-            model=LLMModelMap.ANSWER_GENERATOR,
-            api_key=SecretStr(settings.OPENAI_API_KEY),
-        )
+        if settings.USE_LOCAL_MODEL:
+            self.llm = LocalModelClient()
+        else:
+            from langchain_openai import ChatOpenAI
+            from pydantic import SecretStr
+            self.llm = ChatOpenAI(
+                model=LLMModelMap.ANSWER_GENERATOR,
+                api_key=SecretStr(settings.OPENAI_API_KEY),
+            )
 
     def generate(self, state: AgentState) -> Dict[str, List[AIMessage]]:
         """Generates an answer using retrieved web content and the user's refined question."""
@@ -64,10 +67,16 @@ class AnswerGenerator:
             ),
         )
         conversation.append(HumanMessage(content=rag_prompt))
-        prompt = ChatPromptTemplate.from_messages(conversation)
 
-        logger.info(f"Prompt constructed for answer generation: {prompt}")
-        answer = self.llm.invoke(prompt.format())
-        logger.info(f"Final Answer Generated:\n{answer.content}")
+        logger.info(f"Generating answer with {'local' if settings.USE_LOCAL_MODEL else 'OpenAI'} model...")
+        
+        if settings.USE_LOCAL_MODEL:
+            answer_content = self.llm.invoke(conversation)
+        else:
+            prompt = ChatPromptTemplate.from_messages(conversation)
+            answer = self.llm.invoke(prompt.format())
+            answer_content = answer.content
 
-        return {"messages": [AIMessage(content=answer.content)]}
+        logger.info(f"Final Answer Generated:\n{answer_content}")
+
+        return {"messages": [AIMessage(content=answer_content)]}
