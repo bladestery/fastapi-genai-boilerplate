@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 from loguru import logger
 
 from ..states import AgentState
-from ..tools import TAVILY_SEARCH_TOOL
+from ..tools import SEARCH_TOOL
 
 
 class WebSearchExecutor:
@@ -27,7 +27,7 @@ class WebSearchExecutor:
 
         for query in questions:
             logger.info(f"Performing web search for: {query}")
-            result = TAVILY_SEARCH_TOOL.invoke({"query": query})
+            result = SEARCH_TOOL.invoke({"query": query})
 
             for item in result.get("results"):
                 if item.get("content"):
