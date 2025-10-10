@@ -1,5 +1,5 @@
 """Init application-level middleware."""
 
-from .logging import LoggingMiddleware
+from .request import RequestContextMiddleware, RequestIDMiddleware
 
-__all__ = ["LoggingMiddleware"]
+__all__ = ["RequestIDMiddleware", "RequestContextMiddleware"]

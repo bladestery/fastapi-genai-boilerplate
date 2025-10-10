@@ -25,7 +25,7 @@ class EnhancedQuestionsResult(BaseModel):
 class QuestionEnhancer:
     """Agent component responsible for expanding a single query into multiple precise search questions."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         if settings.USE_LOCAL_MODEL:
             self.llm = LocalModelClient()
         else:

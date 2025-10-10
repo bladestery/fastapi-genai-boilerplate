@@ -18,7 +18,7 @@ from ..states import AgentState
 class AnswerGenerator:
     """Agent component responsible for synthesizing a final answer from retrieved web content."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         if settings.USE_LOCAL_MODEL:
             self.llm = LocalModelClient()
         else:

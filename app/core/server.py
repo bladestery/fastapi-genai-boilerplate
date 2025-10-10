@@ -3,13 +3,16 @@
 from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.apis import api_routers
+from app.apis.monitor.routers import MonitorRoutes
 from app.core.config import settings
+from app.core.enums import AppEnvs
 from app.core.exceptions import HandleExceptions
 from app.core.lifespan import lifespan
-from app.core.middlewares import LoggingMiddleware
+from app.core.middlewares import RequestContextMiddleware, RequestIDMiddleware
 
 
 def configure_middleware() -> list[Middleware]:
@@ -22,13 +25,21 @@ def configure_middleware() -> list[Middleware]:
             allow_methods=["*"],
             allow_headers=["*"],
         ),
-        Middleware(LoggingMiddleware),
+        Middleware(RequestIDMiddleware),
+        Middleware(RequestContextMiddleware),
     ]
 
 
 def configure_routes(app: FastAPI) -> None:
     """Attach API routes to the application."""
     app.include_router(api_routers)
+
+    # Include monitoring endpoints
+    if AppEnvs.PRODUCTION != settings.ENVIRONMENT:
+        MonitorRoutes.setup_docs(app, prefix=settings.API_PREFIX)
+
+    if AppEnvs.PRODUCTION == settings.ENVIRONMENT:
+        MonitorRoutes.disable_docs(app)
 
 
 def configure_metrics(app: FastAPI) -> None:
@@ -56,6 +67,8 @@ def build_app() -> FastAPI:
     HandleExceptions(app=app_instance)
     configure_routes(app_instance)
     configure_metrics(app_instance)
+
+    app_instance.mount("/static", StaticFiles(directory="static"), name="static")
 
     return app_instance
 

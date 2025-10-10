@@ -13,7 +13,7 @@ from .service import UserService
 router = APIRouter()
 
 
-def common_dependency():
+def common_dependency() -> dict[str, str]:
     """Common dependency."""
 
     return {"msg": "This is a dependency"}
@@ -23,7 +23,7 @@ def common_dependency():
 class UserRoute:
     """User-related routes."""
 
-    def __init__(self, common_dep=Depends(common_dependency)):
+    def __init__(self, common_dep=Depends(common_dependency)) -> None:
         self.common_dep = common_dep
         self.service = UserService()
 
@@ -32,7 +32,9 @@ class UserRoute:
         response_class=AppJSONResponse,
         dependencies=[Depends(RateLimiter(times=5, seconds=60))],
     )
-    async def create_user(self, request: Request, request_params: CreateUserRequest):
+    async def create_user(
+        self, request: Request, request_params: CreateUserRequest
+    ) -> AppJSONResponse:
         """Create a new user."""
         data, message, status_code = await self.service.create_user_service(
             request_params=request_params

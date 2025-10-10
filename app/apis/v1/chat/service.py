@@ -11,7 +11,7 @@ from celery.result import AsyncResult
 from langchain_core.messages import AIMessageChunk, HumanMessage
 from loguru import logger
 
-from app import cache, celery_app, trace
+from app import cache, celery_app
 from app.tasks.chat import generate_summary
 
 from ....workflows.graphs.websearch import WebSearchAgentGraph
@@ -31,7 +31,6 @@ class ChatService:
         """Generate a unique cache key from request payload."""
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
-    @trace(name="chat_service")
     async def chat_service(
         self, request_params: ChatRequest
     ) -> Callable[[], AsyncGenerator[str]]:
@@ -76,7 +75,6 @@ class ChatService:
 
         return stream
 
-    @trace(name="chat_websearch_service")
     async def chat_websearch_service(
         self, request_params: WebSearchChatRequest
     ) -> Callable[[], AsyncGenerator[str]]:

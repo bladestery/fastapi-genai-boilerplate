@@ -19,6 +19,7 @@ class AppConfig(BaseSettings):
     PORT: int = 8002
     WORKER_COUNT: int | None = None
     ENV_FILE: str = ".env"
+    API_PREFIX: str = "boilerplate"
 
     # Cache
     CACHE_BACKEND: CacheBackend = CacheBackend.LOCAL

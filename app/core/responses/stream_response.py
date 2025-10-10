@@ -28,6 +28,6 @@ class AppStreamingResponse(StreamingResponse):
 
         super().__init__(
             content=generator,
-            media_type="application/json",
+            media_type="text/event-stream",
             status_code=status_code,
         )

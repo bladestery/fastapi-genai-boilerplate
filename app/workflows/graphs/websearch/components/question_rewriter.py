@@ -29,7 +29,7 @@ class RefinedQueryResult(BaseModel):
 class QuestionRewriter:
     """Agent component responsible for improving user queries for better searchability."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         if settings.USE_LOCAL_MODEL:
             self.llm = LocalModelClient()
         else:
