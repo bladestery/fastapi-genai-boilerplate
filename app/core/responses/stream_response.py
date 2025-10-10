@@ -1,6 +1,7 @@
 """Response module for application-level streaming API responses."""
 
-from typing import Any, AsyncGenerator, Callable, Union
+from collections.abc import AsyncGenerator, Callable
+from typing import Any
 
 from fastapi.responses import StreamingResponse
 
@@ -14,9 +15,7 @@ class AppStreamingResponse(StreamingResponse):
 
     def __init__(
         self,
-        data_stream: Union[
-            Callable[[], AsyncGenerator[Any, None]], AsyncGenerator[Any, None]
-        ],
+        data_stream: Callable[[], AsyncGenerator[Any]] | AsyncGenerator[Any],
         status_code: int = 200,
     ):
         """
@@ -29,6 +28,6 @@ class AppStreamingResponse(StreamingResponse):
 
         super().__init__(
             content=generator,
-            media_type="application/json",
+            media_type="text/event-stream",
             status_code=status_code,
         )

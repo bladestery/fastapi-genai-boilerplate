@@ -4,13 +4,14 @@ import asyncio
 import hashlib
 import json
 import re
-from typing import Any, AsyncGenerator, Callable, Tuple
+from collections.abc import AsyncGenerator, Callable
+from typing import Any
 
 from celery.result import AsyncResult
 from langchain_core.messages import AIMessageChunk, HumanMessage
 from loguru import logger
 
-from app import cache, celery_app, trace
+from app import cache, celery_app
 from app.tasks.chat import generate_summary
 
 from ....workflows.graphs.websearch import WebSearchAgentGraph
@@ -30,10 +31,9 @@ class ChatService:
         """Generate a unique cache key from request payload."""
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
-    @trace(name="chat_service")
     async def chat_service(
         self, request_params: ChatRequest
-    ) -> Callable[[], AsyncGenerator[str, None]]:
+    ) -> Callable[[], AsyncGenerator[str]]:
         """
         Return a streaming chat generator.
         If the response is cached, replay the cached stream.
@@ -47,7 +47,7 @@ class ChatService:
         if cached_response:
             logger.info("Cache hit. Replaying cached response.")
 
-            async def replay_cached_stream() -> AsyncGenerator[str, None]:
+            async def replay_cached_stream() -> AsyncGenerator[str]:
                 for chunk in cached_response.split("\n\n"):
                     yield chunk + "\n\n"
 
@@ -55,7 +55,7 @@ class ChatService:
 
         logger.info("Cache miss. Generating new response stream.")
 
-        async def stream() -> AsyncGenerator[str, None]:
+        async def stream() -> AsyncGenerator[str]:
             buffer = ""
             for i in range(request_params.number):
                 chunk = f"event: content\ndata: {i}\n\n"
@@ -75,10 +75,9 @@ class ChatService:
 
         return stream
 
-    @trace(name="chat_websearch_service")
     async def chat_websearch_service(
         self, request_params: WebSearchChatRequest
-    ) -> Callable[[], AsyncGenerator[str, None]]:
+    ) -> Callable[[], AsyncGenerator[str]]:
         """Handles streaming chat responses with integrated web search results."""
 
         # Compile the LangGraph agent
@@ -95,7 +94,7 @@ class ChatService:
         }
 
         # Run the workflow and get the final state
-        async def stream() -> AsyncGenerator[str, None]:
+        async def stream() -> AsyncGenerator[str]:
             raw_citation_map = {}
             superscript_buffer = ""
             replacer = CitationReplacer()
@@ -144,7 +143,7 @@ class ChatService:
 
         return stream
 
-    async def submit_summary_task(self, text: str) -> Tuple[Any, str, int]:
+    async def submit_summary_task(self, text: str) -> tuple[Any, str, int]:
         """Submit a summary task to Celery and return the task ID."""
 
         logger.info("Submitting summary task to Celery")
@@ -157,7 +156,7 @@ class ChatService:
             200,
         )
 
-    async def summary_status(self, task_id: str) -> Tuple[Any, str, int]:
+    async def summary_status(self, task_id: str) -> tuple[Any, str, int]:
         """Check the status of a summary task and return the result if available."""
 
         result = AsyncResult(task_id, app=celery_app)

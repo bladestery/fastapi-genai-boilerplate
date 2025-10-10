@@ -27,8 +27,5 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
-# Expose app port
-EXPOSE 8004
-
-# Default run command
-CMD ["uv", "run", "python", "main.py"]
+# Run Celery worker
+CMD ["uv", "run", "celery", "-A", "app.celery_app", "worker", "--loglevel=info"]

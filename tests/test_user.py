@@ -2,10 +2,11 @@
 
 from fastapi.testclient import TestClient
 
+from app.core.config import settings
 from app.core.server import app
 
 
-def test_create_user():
+def test_create_user() -> None:
     """Test the POST /api/v1/user endpoint to create a user."""
     with TestClient(app) as client:
         payload = {
@@ -15,7 +16,7 @@ def test_create_user():
             "password": "P@ssw0rd!",
         }
 
-        response = client.post("/api/v1/user", json=payload)
+        response = client.post(f"{settings.API_PREFIX}/api/v1/user", json=payload)
 
         assert response.status_code == 200 or response.status_code == 201
         data = response.json()

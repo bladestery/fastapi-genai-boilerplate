@@ -10,7 +10,7 @@ import re
 class CitationReplacer:
     """Replaces Unicode superscript citation digits with numeric bracketed references."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize citation index and mapping dictionary."""
         self.citation_index = 1
         self.superscript_to_index = {}

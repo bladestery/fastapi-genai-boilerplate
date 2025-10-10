@@ -9,7 +9,7 @@ from .middlewares.rate_limiter import init_rate_limiter
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> None:
     """Handle application startup and shutdown events."""
     logger.info("🚀 Application starting up...")
     await init_rate_limiter()

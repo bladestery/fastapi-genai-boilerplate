@@ -3,11 +3,12 @@
 from aiocache import Cache
 from aiocache.serializers import JsonSerializer
 
-from app.core.config import CacheBackend, settings
+from app.core.config import settings
+from app.core.enums import CacheBackend
 
 if settings.CACHE_BACKEND == CacheBackend.REDIS:
     cache = Cache(
-        cache_class=Cache.REDIS,  # type: ignore
+        cache_class=Cache.REDIS,
         endpoint=settings.REDIS_HOST,
         port=settings.REDIS_PORT,
         password=settings.REDIS_PASSWORD,

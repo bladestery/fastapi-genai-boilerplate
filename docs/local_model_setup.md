@@ -142,4 +142,4 @@ SEARCH_PROVIDER=duckduckgo
 ### Structured Output
 - Local models may not handle structured output as well as OpenAI
 - The system includes fallback parsing for local models
-- For complex structured tasks, consider using OpenAI 
+- For complex structured tasks, consider using OpenAI

@@ -2,14 +2,15 @@
 
 from fastapi.testclient import TestClient
 
+from app.core.config import settings
 from app.core.server import app
 
 
 # Use context manager to ensure lifespan is triggered (for app.state setup)
-def test_stream_chat():
+def test_stream_chat() -> None:
     """Test the /chat streaming endpoint."""
     with TestClient(app) as client:
-        response = client.get("/api/v1/chat?sleep=0.01&number=3")
+        response = client.get(f"{settings.API_PREFIX}/api/v1/chat?sleep=0.01&number=3")
 
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/json"

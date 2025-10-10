@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/github/last-commit/kevaldekivadiya2415/fastapi-genai-boilerplate?style=flat-square&cacheBust=1" />
   <img src="https://img.shields.io/github/languages/top/kevaldekivadiya2415/fastapi-genai-boilerplate?style=flat-square&cacheBust=1" />
   <img src="https://img.shields.io/github/languages/count/kevaldekivadiya2415/fastapi-genai-boilerplate?style=flat-square&cacheBust=1" />
-  <img src=https://img.shields.io/badge/Python-3.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13-blue?style=flat-square&logo=python />
+  <img src=https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12%20|%203.13-blue?style=flat-square&logo=python />
 </p>
 
 ---
@@ -44,7 +44,7 @@
 > Most FastAPI AI boilerplates lack production-readiness and multi-agent capabilities.
 >
 > This project solves that with:
-> 
+>
 > - 🧩 Modular architecture for **multiple LangGraph workflows**, agents, and pipelines  
 > - 🔍 Integrated **Langfuse tracing** for debugging & observability  
 > - 🐳 **Production-ready** deployment using Docker + Gunicorn  
@@ -474,7 +474,6 @@ This boilerplate is compatible with [Langfuse](https://www.langfuse.com/) for ob
 - 🌍 [Environment Variables](docs/envs.md)
 - 🐳 [Docker Compose Setup](docs/docker-compose.md)
 - 🛡️ [Rate Limiting with FastAPI-Limiter](docs/rate_limit.md)
-- 🧭 [Trace Decorator](docs/trace.md)
 - 📊 [Langfuse Integration Guide](docs/langfuse.md)
 ---
 

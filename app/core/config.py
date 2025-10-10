@@ -1,44 +1,8 @@
 """Configuration settings for the application"""
 
-import enum
-from typing import Union
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-class LogLevel(str, enum.Enum):
-    """Defines available logging levels for application monitoring and debugging."""
-
-    NOTSET = "NOTSET"
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-    FATAL = "FATAL"
-    TRACE = "TRACE"
-
-
-class CacheBackend(str, enum.Enum):
-    """Supported cache backends."""
-
-    REDIS = "redis"
-    LOCAL = "local"
-
-
-class RateLimitBackend(str, enum.Enum):
-    """Supported rate-limit backends."""
-
-    REDIS = "redis"
-    LOCAL = "local"
-
-
-class AppEnvs(str, enum.Enum):
-    """Application envs"""
-
-    DEVELOPMENT = "development"
-    QA = "qa"
-    DEMO = "demo"
-    PRODUCTION = "production"
+from app.core.enums import AppEnvs, CacheBackend, LogLevel, RateLimitBackend
 
 
 class AppConfig(BaseSettings):
@@ -53,7 +17,9 @@ class AppConfig(BaseSettings):
     ENVIRONMENT: AppEnvs = AppEnvs.DEVELOPMENT
     HOST: str = "0.0.0.0"
     PORT: int = 8002
-    WORKER_COUNT: Union[int, None] = None
+    WORKER_COUNT: int | None = None
+    ENV_FILE: str = ".env"
+    API_PREFIX: str = "boilerplate"
 
     # Cache
     CACHE_BACKEND: CacheBackend = CacheBackend.LOCAL

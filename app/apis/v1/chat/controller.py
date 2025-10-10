@@ -13,7 +13,7 @@ from .service import ChatService
 router = APIRouter()
 
 
-def common_dependency():
+def common_dependency() -> dict[str, str]:
     """Common dependency."""
     return {"msg": "This is a dependency"}
 
@@ -22,7 +22,7 @@ def common_dependency():
 class ChatRoute:
     """Chat-related routes."""
 
-    def __init__(self, common_dep=Depends(common_dependency)):
+    def __init__(self, common_dep=Depends(common_dependency)) -> None:
         self.common_dep = common_dep
         self.service = ChatService()
 
@@ -38,7 +38,7 @@ class ChatRoute:
             1, description="Sleep duration (in seconds) between streamed tokens."
         ),
         number: int = Query(10, description="Total number of tokens to stream."),
-    ):
+    ) -> AppStreamingResponse:
         """Stream chat tokens based on query parameters."""
         chat_request = ChatRequest(sleep=sleep, number=number)
         data = await self.service.chat_service(request_params=chat_request)
@@ -59,7 +59,7 @@ class ChatRoute:
         thread_id: str = Query(
             description="Unique identifier for the chat thread to maintain context across requests."
         ),
-    ):
+    ) -> AppStreamingResponse:
         """Stream chat tokens based on query parameters."""
         chat_request = WebSearchChatRequest(question=question, thread_id=thread_id)
         data = await self.service.chat_websearch_service(request_params=chat_request)
@@ -67,7 +67,9 @@ class ChatRoute:
         return AppStreamingResponse(data_stream=data)
 
     @router.post("/celery/summary")
-    async def celery_summary(self, request: Request, request_params: SummaryRequest):
+    async def celery_summary(
+        self, request: Request, request_params: SummaryRequest
+    ) -> AppJSONResponse:
         """Submit text for summary task."""
         data, message, status_code = await self.service.submit_summary_task(
             text=request_params.text
@@ -80,7 +82,7 @@ class ChatRoute:
         self,
         request: Request,
         task_id: str = Query(..., description="Celery task ID to check status"),
-    ):
+    ) -> AppJSONResponse:
         """Get status and result of a Celery summary task."""
         data, message, status_code = await self.service.summary_status(task_id=task_id)
 

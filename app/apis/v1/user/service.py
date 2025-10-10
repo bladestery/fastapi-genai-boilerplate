@@ -1,8 +1,6 @@
 """User service"""
 
-from typing import Any, Tuple
-
-from app import trace
+from typing import Any
 
 from .models import CreateUserRequest
 
@@ -14,15 +12,13 @@ class UserService:
         """Initialize the service."""
         pass
 
-    @trace(name="sample_function")
     async def sample_function(self, temp_arg: str) -> str:
         """Convert input string to uppercase."""
         return temp_arg.upper()
 
-    @trace(name="create_user_service")
     async def create_user_service(
         self, request_params: CreateUserRequest
-    ) -> Tuple[Any, str, int]:
+    ) -> tuple[Any, str, int]:
         """Create a new user from request parameters."""
         await self.sample_function(temp_arg=request_params.name)
 
