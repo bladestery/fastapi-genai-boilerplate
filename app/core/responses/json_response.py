@@ -1,6 +1,6 @@
 """Response module for application-level API responses."""
 
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 from fastapi.responses import JSONResponse
 
@@ -17,7 +17,7 @@ class AppJSONResponse(JSONResponse):
         data: Any = None,
         message: str = "Success",
         status: Literal["success", "error"] = "success",
-        error: Optional[Union[str, dict]] = None,
+        error: str | dict | None = None,
         status_code: int = 200,
     ):
         """Initializes the AppJSONResponse.

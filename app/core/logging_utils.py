@@ -5,17 +5,18 @@ import functools
 import json
 import time
 import uuid
+from typing import Any
 
 from loguru import logger
 
 
-def trace(name: str = "", log_args: bool = True, log_result: bool = True):
+def trace(name: str = "", log_args: bool = True, log_result: bool = True) -> Any:
     """Trace and log function execution with a unique function ID."""
 
-    def decorator(func):
+    def decorator(func) -> Any:
         """Wrap function to add tracing and logging."""
 
-        def format_args(args, kwargs):
+        def format_args(args, kwargs) -> Any:
             """Format function arguments for logging."""
             try:
                 return json.dumps(
@@ -24,7 +25,7 @@ def trace(name: str = "", log_args: bool = True, log_result: bool = True):
             except Exception:
                 return "[Unserializable]"
 
-        def format_result(result):
+        def format_result(result) -> Any:
             """Format function result for logging."""
             try:
                 return json.dumps(result, default=str)
@@ -32,7 +33,7 @@ def trace(name: str = "", log_args: bool = True, log_result: bool = True):
                 return "[Unserializable]"
 
         @functools.wraps(func)
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args, **kwargs) -> Any:
             """Async wrapper to log execution details and handle exceptions."""
             function_id = str(uuid.uuid4())
             log = logger.bind(function_id=function_id)
@@ -57,7 +58,7 @@ def trace(name: str = "", log_args: bool = True, log_result: bool = True):
                 raise
 
         @functools.wraps(func)
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args, **kwargs) -> Any:
             """Sync wrapper to log execution details and handle exceptions."""
             function_id = str(uuid.uuid4())
             log = logger.bind(function_id=function_id)

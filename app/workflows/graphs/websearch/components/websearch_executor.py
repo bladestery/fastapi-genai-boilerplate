@@ -1,6 +1,6 @@
 """Web search component that retrieves search results for enhanced or rephrased questions."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 from loguru import logger
 
@@ -14,7 +14,7 @@ class WebSearchExecutor:
     def __init__(self):
         pass
 
-    def search(self, state: AgentState) -> Dict[str, List[Dict[str, Any]]]:
+    def search(self, state: AgentState) -> dict[str, list[dict[str, Any]]]:
         """
         Executes web search queries using available questions in the state.
         """

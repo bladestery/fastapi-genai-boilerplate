@@ -15,7 +15,7 @@ health_router = APIRouter()
     description="Endpoint of service (/)",
     response_description="JSON response indicating the root message of the service.",
 )
-async def root():
+async def root() -> AppJSONResponse:
     """Endpoint for root."""
     return AppJSONResponse(
         data={"message": "FastAPI Boilerplate", "version": settings.RELEASE_VERSION},

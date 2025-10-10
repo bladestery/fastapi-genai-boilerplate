@@ -1,7 +1,5 @@
 """Primary application entry point for FastAPI Boilerplate."""
 
-from typing import List
-
 from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +12,7 @@ from app.core.lifespan import lifespan
 from app.core.middlewares import LoggingMiddleware
 
 
-def configure_middleware() -> List[Middleware]:
+def configure_middleware() -> list[Middleware]:
     """Define and return middleware settings."""
     return [
         Middleware(

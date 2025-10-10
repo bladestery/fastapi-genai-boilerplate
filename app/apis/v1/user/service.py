@@ -1,6 +1,6 @@
 """User service"""
 
-from typing import Any, Tuple
+from typing import Any
 
 from app import trace
 
@@ -22,7 +22,7 @@ class UserService:
     @trace(name="create_user_service")
     async def create_user_service(
         self, request_params: CreateUserRequest
-    ) -> Tuple[Any, str, int]:
+    ) -> tuple[Any, str, int]:
         """Create a new user from request parameters."""
         await self.sample_function(temp_arg=request_params.name)
 

@@ -7,6 +7,6 @@ metrics_router = APIRouter()
 
 
 @metrics_router.get("/metrics", include_in_schema=True)
-async def metrics():
+async def metrics() -> Response:
     """Return Prometheus-formatted metrics response."""
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)

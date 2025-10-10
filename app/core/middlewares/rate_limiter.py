@@ -1,5 +1,7 @@
 """Rate limiter configuration and utility exports using fastapi-limiter."""
 
+from typing import Any
+
 import fakeredis.aioredis
 import redis.asyncio as redis
 from fastapi import Request
@@ -8,7 +10,7 @@ from fastapi_limiter import FastAPILimiter
 from app.core.config import RateLimitBackend, settings
 
 
-async def token_or_ip_key(request: Request) -> str:
+async def token_or_ip_key(request: Request) -> Any:
     """Use Bearer token from Authorization header if available, otherwise fallback to client IP address."""
     auth_header = request.headers.get("authorization")
     if auth_header and auth_header.lower().startswith("bearer "):
@@ -19,7 +21,7 @@ async def token_or_ip_key(request: Request) -> str:
     return request.client.host
 
 
-async def init_rate_limiter():
+async def init_rate_limiter() -> None:
     """Initialize FastAPI rate limiter with local or Redis backend."""
 
     if settings.RATE_LIMIT_BACKEND == RateLimitBackend.LOCAL:

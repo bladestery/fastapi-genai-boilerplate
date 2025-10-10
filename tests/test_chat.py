@@ -6,7 +6,7 @@ from app.core.server import app
 
 
 # Use context manager to ensure lifespan is triggered (for app.state setup)
-def test_stream_chat():
+def test_stream_chat() -> None:
     """Test the /chat streaming endpoint."""
     with TestClient(app) as client:
         response = client.get("/api/v1/chat?sleep=0.01&number=3")

@@ -1,13 +1,12 @@
 """Question rewriter components"""
 
-from typing import Dict, List
-
 from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from loguru import logger
 from pydantic import BaseModel, Field
 
 from app import settings
+
 from ..local_model_client import LocalModelClient
 from ..model_map import LLMModelMap
 from ..states import AgentState
@@ -36,6 +35,7 @@ class QuestionRewriter:
         else:
             from langchain_openai import ChatOpenAI
             from pydantic import SecretStr
+
             self.llm = ChatOpenAI(
                 model=LLMModelMap.QUESTION_REWRITER,
                 api_key=SecretStr(settings.OPENAI_API_KEY),
@@ -45,7 +45,7 @@ class QuestionRewriter:
             )
 
     @staticmethod
-    def delete_messages(state: AgentState) -> Dict[str, List]:
+    def delete_messages(state: AgentState) -> dict[str, list]:
         """Removes all messages except the last 10 from the conversation state."""
         messages = state["messages"]
         if len(messages) > 10:
@@ -55,7 +55,7 @@ class QuestionRewriter:
         else:
             return {"messages": messages}
 
-    def rewrite(self, state: AgentState) -> Dict:
+    def rewrite(self, state: AgentState) -> dict:
         """
         Rewrites the question using chat history for context.
         """
@@ -72,19 +72,24 @@ class QuestionRewriter:
         )
         conversation.append(HumanMessage(content=current_question))
 
-        logger.info(f"Rewriting question with {'local' if settings.USE_LOCAL_MODEL else 'OpenAI'} model...")
+        logger.info(
+            f"Rewriting question with {'local' if settings.USE_LOCAL_MODEL else 'OpenAI'} model..."
+        )
 
         if settings.USE_LOCAL_MODEL:
             # For local models, we'll use a simpler approach
             response_content = self.llm.invoke(conversation)
-            
+
             # Simple parsing for local models
             refined_question = response_content.strip()
-            require_enhancement = "complex" in response_content.lower() or "enhance" in response_content.lower()
-            
+            require_enhancement = (
+                "complex" in response_content.lower()
+                or "enhance" in response_content.lower()
+            )
+
             response = RefinedQueryResult(
                 refined_question=refined_question,
-                require_enhancement=require_enhancement
+                require_enhancement=require_enhancement,
             )
         else:
             rephrase_prompt = ChatPromptTemplate.from_messages(conversation)

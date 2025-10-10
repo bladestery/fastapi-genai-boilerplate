@@ -22,11 +22,13 @@ class HandleExceptions:
         self._handle_fastapi_http_exception()
         self._handle_default_exception()
 
-    def _handle_custom_exception(self):
+    def _handle_custom_exception(self) -> None:
         """Handle custom exceptions."""
 
         @self.app.exception_handler(CustomException)
-        async def custom_exception_handler(request: Request, exc: CustomException):
+        async def custom_exception_handler(
+            request: Request, exc: CustomException
+        ) -> AppJSONResponse:
             return await self._create_json_response(
                 status_code=exc.status_code,
                 message=exc.message,
@@ -34,24 +36,26 @@ class HandleExceptions:
                 error_log=exc.error_log,
             )
 
-    def _handle_pydantic_exception(self):
+    def _handle_pydantic_exception(self) -> None:
         """Handle Pydantic validation errors."""
 
         @self.app.exception_handler(RequestValidationError)
         async def pydantic_exception_handler(
             request: Request, exc: RequestValidationError
-        ):
+        ) -> AppJSONResponse:
             return await self._create_json_response(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 message=messages.PYDANTIC_VALIDATION_ERROR,
                 error_log=exc.errors(),  # type: ignore
             )
 
-    def _handle_fastapi_http_exception(self):
+    def _handle_fastapi_http_exception(self) -> None:
         """Handle FastAPI HTTP exceptions."""
 
         @self.app.exception_handler(HTTPException)
-        async def fastapi_http_exception_handler(request: Request, exc: HTTPException):
+        async def fastapi_http_exception_handler(
+            request: Request, exc: HTTPException
+        ) -> AppJSONResponse:
             if exc.status_code == 429:
                 headers = getattr(exc, "headers", {})
                 retry_after = int(headers["Retry-After"])
@@ -66,11 +70,13 @@ class HandleExceptions:
                 status_code=exc.status_code, message=exc.detail
             )
 
-    def _handle_default_exception(self):
+    def _handle_default_exception(self) -> None:
         """Handle all other exceptions."""
 
         @self.app.exception_handler(Exception)
-        async def default_exception_handler(request: Request, exc: Exception):
+        async def default_exception_handler(
+            request: Request, exc: Exception
+        ) -> AppJSONResponse:
             return await self._create_json_response(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 message=messages.INTERNAL_SERVER_ERROR,

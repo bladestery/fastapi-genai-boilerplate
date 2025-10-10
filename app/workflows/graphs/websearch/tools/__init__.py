@@ -4,9 +4,10 @@ from langchain_core.tools import BaseTool
 
 from app import settings
 
+from .duckduckgo_search_tool import DUCKDUCKGO_SEARCH_TOOL
+
 # Import both search tools
 from .tavily_search_tool import TAVILY_SEARCH_TOOL
-from .duckduckgo_search_tool import DUCKDUCKGO_SEARCH_TOOL
 
 # Select search tool based on configuration
 if settings.SEARCH_PROVIDER.lower() == "duckduckgo":
