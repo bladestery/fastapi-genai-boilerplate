@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   fastapi:
     build:
@@ -13,6 +11,7 @@ services:
     depends_on:
       - prometheus
       - redis
+      - postgres
     networks:
       - monitoring
     env_file:
@@ -48,7 +47,11 @@ services:
     ports:
       - "9091:9091"
     volumes:
+      - prometheus_data:/prometheus
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
     networks:
       - monitoring
 
@@ -93,8 +96,25 @@ services:
     networks:
       - monitoring
 
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment: 
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PW}
+    volumes:
+      - ./docker/init-scripts:/docker-entrypoint-initdb.d
+      - ./docker/data:/docker-entrypoint-initdb.d/data
+      - postgres_data:/var/lib/postgresql/data # Persistent data storage
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+
 volumes:
   grafana_data:
+  postgres_data:
+  prometheus_data:
 
 networks:
   monitoring:

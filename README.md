@@ -1,4 +1,4 @@
-<h1 align="center">🚀 FASTAPI-GENAI-BOILERPLATE</h1>
+<h1 align="center">🚀 TRIPITIKA POC from FASTAPI-GENAI-BOILERPLATE</h1>
 
 <p align="center">
   <i>Accelerate Innovation with Seamless AI-Driven APIs</i>
@@ -137,7 +137,10 @@ fastapi_genai_boilerplate/
 │   ├── core/
 │   │   ├── config.py            # App settings and environment config
 │   │   └── middlewares/         # Logging, rate limit middleware
-│   └── main.py                  # App bootstrap logic
+│   └── main.py                  # App bootstrap logic for windows
+│   └── main-original.py         # Original App bootstrap logic
+├── data/                        # Tripitika text
+├── rag_pipeline/                # Python notebook files to create embeddings.csv for import
 ├── tests/                       # Test cases
 ├── .env                         # Local environment variables
 ├── Dockerfile                   # Docker setup
@@ -170,9 +173,11 @@ uv sync
 
 # Start an interactive Python shell with uv
 uv run main.py
+
+# For non-windows replace main.py with main-original.py
 ```
 
-### 2. Add a `.env` File
+### 2. Add a `.env` File (see .env.sample)
 
 ```env
 LOG_LEVEL=DEBUG
