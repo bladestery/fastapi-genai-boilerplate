@@ -172,3 +172,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+hypnotic-bounty-474514-q4-f1a5dff58154.json
+embedding.csv
+.vs/
