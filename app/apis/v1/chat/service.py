@@ -14,7 +14,7 @@ from loguru import logger
 from app import cache, celery_app
 from app.tasks.chat import generate_summary
 
-from ....workflows.graphs.websearch import WebSearchAgentGraph
+from ....workflows.graphs.rag import RagAgentGraph
 from .helper import CitationReplacer
 from .models import ChatRequest, WebSearchChatRequest
 
@@ -81,7 +81,7 @@ class ChatService:
         """Handles streaming chat responses with integrated web search results."""
 
         # Compile the LangGraph agent
-        graph = WebSearchAgentGraph().compile()
+        graph = RagAgentGraph().compile()
 
         # Prepare initial input for agent execution
         state_input = {

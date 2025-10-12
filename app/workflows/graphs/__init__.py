@@ -1,6 +1,6 @@
 """Initialize and expose graph-related workflows and pipelines."""
 
-from .websearch import WebSearchAgentGraph
+from .rag import RagAgentGraph
 from ..pipelines import RagService, RagServiceError
 
-__all__ = ["WebSearchAgentGraph", "RagService", "RagServiceError"]
+__all__ = ["RagAgentGraph", "RagService", "RagServiceError"]

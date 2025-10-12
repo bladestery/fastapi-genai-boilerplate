@@ -1,9 +1,9 @@
 [project]
-name = "fastapi-genai-boilerplate"
+name = "tripitika-poc"
 version = "0.0.1"
-description = "A production-ready FastAPI boilerplate designed for building scalable, AI-powered applications."
+description = "POC from boilerplate."
 authors = [
-  { name = "Keval Dekivadiya", email = "kevalkumar.dekivadiya@gmail.com" }
+  { name = "Ben", email = "ben.ru@bdi.or.th" }
 ]
 readme = "README.md"
 requires-python = ">=3.13,<4.0"

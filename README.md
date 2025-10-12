@@ -133,17 +133,25 @@ This template empowers you to build robust, scalable, and maintainable APIs with
 ```
 fastapi_genai_boilerplate/
 ├── app/
-│   ├── api/                     # API routes and handlers
+│   ├── apis/                     # API routes and handlers
 │   ├── core/
 │   │   ├── config.py            # App settings and environment config
 │   │   └── middlewares/         # Logging, rate limit middleware
-│   └── main.py                  # App bootstrap logic for windows
-│   └── main-original.py         # Original App bootstrap logic
-├── data/                        # Tripitika text
-├── rag_pipeline/                # Python notebook files to create embeddings.csv for import
+│   ├── database/
+│   ├── services/
+│   │   └── vectorstores 
+│   ├── workflows/
+│   │   └── pipelines
+├── docker/                      
+│   └── data/                    # Tripitika.csv for import to local development pgvector using docker-compose.yml
+│   └── init-scripts/            # Initialize pgvector for local deployment
+├── rag_ingestion_pipeline/      # Python notebook files to create embeddings.csv for import
 ├── tests/                       # Test cases
+├── tripitika_data/              # Tripitika data
 ├── .env                         # Local environment variables
 ├── Dockerfile                   # Docker setup
+├── main.py                      # App bootstrap logic for windows
+├── main-original.py             # Original App bootstrap logic
 ├── Makefile                     # Developer shortcuts
 ├── pyproject.toml               # UV dependencies & configs
 ├── pre-commit-config.yaml       # Git hook configs

@@ -28,7 +28,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
 # Expose app port
-EXPOSE 8004
+EXPOSE 8002
 
 # Default run command
 CMD ["uv", "run", "python", "main.py"]

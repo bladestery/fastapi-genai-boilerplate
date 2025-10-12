@@ -1,1 +1,0 @@
-    COPY my_items FROM '/docker-entrypoint-initdb.d/data/test.csv' CSV DELIMITER ',';
