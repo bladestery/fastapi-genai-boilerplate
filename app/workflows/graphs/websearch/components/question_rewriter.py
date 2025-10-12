@@ -15,11 +15,11 @@ from ..states import AgentState
 class RefinedQueryResult(BaseModel):
     """
     Output schema representing the improved version of a user's question,
-    tailored for better clarity and effectiveness in downstream tasks like web search or retrieval.
+    tailored for better clarity and effectiveness in downstream tasks like web search or rag retrieval.
     """
 
     refined_question: str = Field(
-        description="The user's original question, rewritten for improved clarity and optimized for retrieval tasks such as web search."
+        description="The user's original question, rewritten for improved clarity and optimized for retrieval tasks such as web search and rag."
     )
     require_enhancement: bool = Field(
         description="Indicates whether the input question required refinement due to ambiguity or complexity."
@@ -33,12 +33,25 @@ class QuestionRewriter:
         if settings.USE_LOCAL_MODEL:
             self.llm = LocalModelClient()
         else:
-            from langchain_openai import ChatOpenAI
-            from pydantic import SecretStr
+            #from langchain_openai import ChatOpenAI
+            #from pydantic import SecretStr
 
-            self.llm = ChatOpenAI(
+            #self.llm = ChatOpenAI(
+            #    model=LLMModelMap.QUESTION_REWRITER,
+            #    api_key=SecretStr(settings.OPENAI_API_KEY),
+            #).with_structured_output(
+            #    schema=RefinedQueryResult,
+            #    strict=True,
+            #)
+            from langchain_google_genai import ChatGoogleGenerativeAI
+
+            self.llm = ChatGoogleGenerativeAI(
                 model=LLMModelMap.QUESTION_REWRITER,
-                api_key=SecretStr(settings.OPENAI_API_KEY),
+                temperature=0,
+                max_tokens=None,
+                timeout=None,
+                max_retries=2,
+                # other params...
             ).with_structured_output(
                 schema=RefinedQueryResult,
                 strict=True,
@@ -67,13 +80,13 @@ class QuestionRewriter:
         conversation.insert(
             0,
             SystemMessage(
-                content="You are a helpful assistant that rephrases the user's question to be a standalone question optimized for websearch."
+                content="You are a helpful assistant that rephrases the user's question to be a standalone question optimized for web serach and retrieval augmented generation."
             ),
         )
         conversation.append(HumanMessage(content=current_question))
 
         logger.info(
-            f"Rewriting question with {'local' if settings.USE_LOCAL_MODEL else 'OpenAI'} model..."
+            f"Rewriting question with {'local' if settings.USE_LOCAL_MODEL else 'Vertex AI'} model..."
         )
 
         if settings.USE_LOCAL_MODEL:

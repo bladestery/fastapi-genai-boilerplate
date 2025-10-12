@@ -13,6 +13,7 @@ from .components.conditional_edges import route_after_question_rewrite
 from .components.question_enhancer import QuestionEnhancer
 from .components.question_rewriter import QuestionRewriter
 from .components.websearch_executor import WebSearchExecutor
+from .components.rag_executor import RagExecutor
 from .states import AgentState
 
 checkpointer = InMemorySaver()
@@ -34,6 +35,7 @@ class WebSearchAgentGraph:
         self.enhancer = QuestionEnhancer()
         self.searcher = WebSearchExecutor()
         self.answerer = AnswerGenerator()
+        self.retriever = RagExecutor()
 
         # Create the StateGraph
         self.workflow = StateGraph(AgentState)
@@ -46,11 +48,13 @@ class WebSearchAgentGraph:
         self.workflow.add_node("question_rewriter", self.rewriter.rewrite)
         self.workflow.add_node("question_enhancer", self.enhancer.enhance)
         self.workflow.add_node("websearch", self.searcher.search)
+        self.workflow.add_node("retrieval", self.retriever.search)
         self.workflow.add_node("answer_generation", self.answerer.generate)
 
         # Define flow
         self.workflow.set_entry_point("question_rewriter")
         self.workflow.add_edge("question_enhancer", "websearch")
+        self.workflow.add_edge("retrieval", "answer_generation")
         self.workflow.add_edge("websearch", "answer_generation")
         self.workflow.add_edge("answer_generation", END)
 
@@ -61,6 +65,7 @@ class WebSearchAgentGraph:
             {
                 "question_enhancer": "question_enhancer",
                 "websearch": "websearch",
+                "retrieval": "retrieval"
             },
         )
 

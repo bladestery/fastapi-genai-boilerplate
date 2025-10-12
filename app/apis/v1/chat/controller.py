@@ -46,7 +46,7 @@ class ChatRoute:
         return AppStreamingResponse(data_stream=data)
 
     @router.get(
-        "/chat/websearch",
+        "/ask",
         response_class=AppStreamingResponse,
         dependencies=[Depends(RateLimiter(times=5, seconds=60))],
     )
