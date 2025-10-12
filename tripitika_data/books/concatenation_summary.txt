@@ -1,0 +1,56 @@
+==================================================
+TRIPITAKA BOOK CONCATENATION SUMMARY
+==================================================
+
+Books processed: 45
+Total pages: 25261
+
+Book details:
+  Book  1:  484 pages
+  Book  2:  737 pages
+  Book  3:  401 pages
+  Book  4:  393 pages
+  Book  5:  374 pages
+  Book  6:  369 pages
+  Book  7:  420 pages
+  Book  8:  721 pages
+  Book  9:  247 pages
+  Book 10:  372 pages
+  Book 11:  438 pages
+  Book 12:  554 pages
+  Book 13:  614 pages
+  Book 14:  510 pages
+  Book 15:  396 pages
+  Book 16:  340 pages
+  Book 17:  408 pages
+  Book 18:  496 pages
+  Book 19:  658 pages
+  Book 20:  411 pages
+  Book 21:  392 pages
+  Book 22:  644 pages
+  Book 23:  564 pages
+  Book 24:  449 pages
+  Book 25:  784 pages
+  Book 26:  640 pages
+  Book 27:  636 pages
+  Book 28:  560 pages
+  Book 29:  620 pages
+  Book 30:  502 pages
+  Book 31:  610 pages
+  Book 32:  704 pages
+  Book 33:  778 pages
+  Book 34:  388 pages
+  Book 35:  690 pages
+  Book 36:  232 pages
+  Book 37:  946 pages
+  Book 38:  854 pages
+  Book 39:  649 pages
+  Book 40:  908 pages
+  Book 41:  668 pages
+  Book 42:  482 pages
+  Book 43:  647 pages
+  Book 44:  840 pages
+  Book 45:  731 pages
+
+No errors found!
+==================================================

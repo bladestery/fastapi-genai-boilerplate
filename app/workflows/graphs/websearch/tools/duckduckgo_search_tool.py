@@ -19,14 +19,14 @@ class DuckDuckGoSearchTool(BaseTool):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self._ddgs = None  # Initialize lazily
+        self._ddgs = DDGS()  # Initialize lazily
 
-    @property
-    def ddgs(self) -> DDGS:
-        """Lazy initialization of DDGS instance."""
-        if self._ddgs is None:
-            self._ddgs = DDGS()
-        return self._ddgs
+    #@property
+    #def ddgs(self) -> DDGS:
+    #    """Lazy initialization of DDGS instance."""
+    #    if self._ddgs is None:
+    #        self._ddgs = DDGS()
+    #    return self._ddgs
 
     def _run(self, query: str) -> dict[str, Any] | None:
         """Execute DuckDuckGo search and return results in Tavily-compatible format."""
@@ -40,7 +40,7 @@ class DuckDuckGoSearchTool(BaseTool):
             formatted_results = []
             for result in results:
                 formatted_result = {
-                    "title": result.get("title", ""),
+                    "title": result.get("header", ""),
                     "link": result.get("link", ""),
                     "content": result.get("body", ""),
                     "source": "DuckDuckGo",

@@ -9,11 +9,10 @@ def route_after_question_rewrite(state: AgentState) -> str:
     """Routes to the next node based on whether the question requires enhancement."""
     logger.debug("Entering `route_after_question_rewrite` decision function.")
 
-    enhancement_required = (
-        str(state.get("require_enhancement", "false")).lower() == "true"
-    )
-
-    if enhancement_required:
+    if state.get("require_tripitika"):
+        logger.info("Routing to: retriever")
+        return "retrieval"
+    if state.get("require_enhancement"):
         logger.info("Routing to: question_enhancer")
         return "question_enhancer"
     else:

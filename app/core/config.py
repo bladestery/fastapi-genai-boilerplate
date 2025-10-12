@@ -49,6 +49,22 @@ class AppConfig(BaseSettings):
     LANGFUSE_PUBLIC_KEY: str = ""
     LANGFUSE_SECRET_KEY: str = ""
 
+    # Google Generative AI
+    GOOGLE_GENAI_API_KEY: str = ""
+    GOOGLE_GENAI_EMBED_MODEL: str = "gemini-embedding-001"
+    GOOGLE_APPLICATION_CREDENTIALS: str = ""
+    PROJECT_ID: str = ""
+    REGION: str = ""
+
+    # RAG defaults
+    RAG_MAX_RESULTS: int = 5
+    RAG_DEFAULT_TOP_K: int = 5
+    RAG_EMBEDDING_TIMEOUT: float = 15.0
+
+    PG_URL: str = ""
+    VECTOR_TABLE_NAME: str = ""
+
+
 
 # Initialize configuration settings
 settings = AppConfig()

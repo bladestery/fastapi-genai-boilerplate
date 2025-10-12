@@ -12,6 +12,7 @@ class AgentState(TypedDict):
     question: HumanMessage
     refined_question: str
     require_enhancement: bool
+    require_tripitika: bool
     refined_questions: list[str]
     search_results: list[dict]
     messages: Annotated[list[BaseMessage], operator.add]

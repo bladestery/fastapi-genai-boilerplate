@@ -9,6 +9,8 @@ from .duckduckgo_search_tool import DUCKDUCKGO_SEARCH_TOOL
 # Import both search tools
 from .tavily_search_tool import TAVILY_SEARCH_TOOL
 
+from .rag_tool import RAG_TOOL
+
 # Select search tool based on configuration
 if settings.SEARCH_PROVIDER.lower() == "duckduckgo":
     SEARCH_TOOL: BaseTool = DUCKDUCKGO_SEARCH_TOOL
@@ -17,4 +19,4 @@ else:
 
 TOOLS: list[BaseTool] = [SEARCH_TOOL]
 
-__all__ = ["TOOLS", "SEARCH_TOOL", "TAVILY_SEARCH_TOOL", "DUCKDUCKGO_SEARCH_TOOL"]
+__all__ = ["TOOLS", "SEARCH_TOOL", "TAVILY_SEARCH_TOOL", "DUCKDUCKGO_SEARCH_TOOL", "RAG_TOOL"]

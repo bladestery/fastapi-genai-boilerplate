@@ -24,3 +24,4 @@ def load_prompt(prompt_filename: str) -> str:
 
 SYSTEM_PROMPT = load_prompt("system.md")
 RAG_PROMPT = load_prompt("rag.md")
+QUESTION_REWRITER_PROMPT = load_prompt("rewriter.md")

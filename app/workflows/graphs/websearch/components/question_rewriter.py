@@ -11,6 +11,8 @@ from ..local_model_client import LocalModelClient
 from ..model_map import LLMModelMap
 from ..states import AgentState
 
+from ..prompts import QUESTION_REWRITER_PROMPT
+
 
 class RefinedQueryResult(BaseModel):
     """
@@ -22,7 +24,10 @@ class RefinedQueryResult(BaseModel):
         description="The user's original question, rewritten for improved clarity and optimized for retrieval tasks such as web search and rag."
     )
     require_enhancement: bool = Field(
-        description="Indicates whether the input question required refinement due to ambiguity or complexity."
+        description="Indicates whether the input question required refinement and websearch due to ambiguity or complexity."
+    )
+    require_tripitika: bool = Field(
+        description="Indicates whether the input question required retrieval augmented generation due to being domain specific on Thai tripitika text."
     )
 
 
@@ -80,7 +85,7 @@ class QuestionRewriter:
         conversation.insert(
             0,
             SystemMessage(
-                content="You are a helpful assistant that rephrases the user's question to be a standalone question optimized for web serach and retrieval augmented generation."
+                content=QUESTION_REWRITER_PROMPT
             ),
         )
         conversation.append(HumanMessage(content=current_question))
@@ -99,10 +104,15 @@ class QuestionRewriter:
                 "complex" in response_content.lower()
                 or "enhance" in response_content.lower()
             )
+            require_triptika = (
+                "tripitika" in response_content.lower()
+                or "thai" in response_content.lower()
+            )
 
             response = RefinedQueryResult(
                 refined_question=refined_question,
                 require_enhancement=require_enhancement,
+                require_tripitika=require_tripitika
             )
         else:
             rephrase_prompt = ChatPromptTemplate.from_messages(conversation)
@@ -111,11 +121,14 @@ class QuestionRewriter:
 
         refined_question = response.refined_question
         require_enhancement = response.require_enhancement
+        require_tripitika = response.require_tripitika
 
         logger.info(f"Refined question: {refined_question}")
         logger.info(f"Enhancement required: {require_enhancement}")
+        logger.info(f"Tripitika required: {require_tripitika}")
 
         return {
             "refined_question": refined_question,
             "require_enhancement": require_enhancement,
+            "require_tripitika" : require_tripitika
         }

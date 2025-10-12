@@ -29,12 +29,25 @@ class QuestionEnhancer:
         if settings.USE_LOCAL_MODEL:
             self.llm = LocalModelClient()
         else:
-            from langchain_openai import ChatOpenAI
-            from pydantic import SecretStr
+            #from langchain_openai import ChatOpenAI
+            #from pydantic import SecretStr
 
-            self.llm = ChatOpenAI(
+            #self.llm = ChatOpenAI(
+            #    model=LLMModelMap.QUESTION_ENHANCER,
+            #    api_key=SecretStr(settings.OPENAI_API_KEY),
+            #).with_structured_output(
+            #    schema=EnhancedQuestionsResult,
+            #    strict=True,
+            #)
+            from langchain_google_genai import ChatGoogleGenerativeAI
+
+            self.llm = ChatGoogleGenerativeAI(
                 model=LLMModelMap.QUESTION_ENHANCER,
-                api_key=SecretStr(settings.OPENAI_API_KEY),
+                temperature=0,
+                max_tokens=None,
+                timeout=None,
+                max_retries=2,
+                # other params...
             ).with_structured_output(
                 schema=EnhancedQuestionsResult,
                 strict=True,

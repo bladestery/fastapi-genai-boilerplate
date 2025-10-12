@@ -87,8 +87,9 @@ class ChatService:
         state_input = {
             "question": HumanMessage(content=request_params.question),
             "refined_question": "",
+            "refined_questions" : [],
             "require_enhancement": False,
-            "questions": [],
+            "require_triptiika": False,
             "search_results": [],
             "messages": [HumanMessage(content=request_params.question)],
         }
