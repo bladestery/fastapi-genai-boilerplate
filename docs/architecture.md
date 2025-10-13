@@ -177,7 +177,7 @@ This document provides a high-level overview of the chatbot backend architecture
 
 **Subsystems**: The architecture is broadly divided into two main parts – a Data Ingestion pipeline and a Serving (query-handling) subsystem. The Data Ingestion side prepares domain documents (Tripitaka texts) for retrieval by generating and storing their vector embeddings. The Serving side handles live user queries: it retrieves relevant data via vector search (and web search API calls) and then invokes an LLM (Vertex AI’s Gemini model) to generate answers augmented with that data.
 
-![alt text](https://github.com/bladestery/fastapi-genai-boilerplate/tree/main/docs/poc_deployment.png?raw=true)
+![plot](https://github.com/bladestery/fastapi-genai-boilerplate/tree/main/docs/poc_deployment.png)
 
 Figure: Current RAG Chatbot Architecture (deployed on GCP). The Data Ingestion subsystem (left, green) involves offline embedding of Tripitaka documents using Vertex AI and storing the embeddings in a Cloud Storage bucket and CloudSQL database. The Serving subsystem (right, green) is a FastAPI backend on Cloud Run that accepts user queries, retrieves relevant document embeddings from CloudSQL (pgvector), calls an external web search API for latest information, and then invokes the Vertex AI Gemini LLM to generate a response. A Redis cache (Memorystore) is used to store recent query results for faster lookup on repeat queries. The user interacts via a frontend or API client which sends requests to the Cloud Run backend.
 
@@ -261,7 +261,7 @@ By implementing the above enhancements, the chatbot backend will be more robust,
 
 To put the current design in context, we compare it with Google’s published RAG reference architecture for generative AI applications on GCP. The reference architecture (from Google’s documentation) illustrates an end-to-end, production-ready setup with additional subsystems and best practices:
 
-![alt text](https://github.com/bladestery/fastapi-genai-boilerplate/tree/main/docs/prod_deployment.png?raw=true)
+![plot](https://github.com/bladestery/fastapi-genai-boilerplate/tree/main/docs/prod_deployment.png)
 
 Figure: Google Cloud reference architecture for a RAG-capable generative AI application (high-level overview). This diagram (from Google’s Cloud Architecture Center) shows three subsystems – Data Ingestion, Serving, and Quality Evaluation – along with a shared database layer. Data ingestion is event-driven (Cloud Storage + Pub/Sub triggers) and uses services like Document AI and Vertex AI for processing incoming data into embeddings. The serving subsystem (right, green) includes a frontend, a backend, and calls to Vertex AI for LLM inference, similar to our design, but also highlights Responsible AI checks, logging to BigQuery/Cloud Logging, and Monitoring. The quality evaluation subsystem (bottom) continuously evaluates responses using stored evaluation prompts, with results stored for analysis. This reference model provides a blueprint for scaling and productionizing RAG applications on GCP.
 
