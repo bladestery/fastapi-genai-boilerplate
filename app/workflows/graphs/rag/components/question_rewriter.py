@@ -1,6 +1,6 @@
 """Question rewriter components"""
 
-from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -66,12 +66,16 @@ class QuestionRewriter:
     def delete_messages(state: AgentState) -> dict[str, list]:
         """Removes all messages except the last 10 from the conversation state."""
         messages = state["messages"]
-        if len(messages) > 10:
-            # Keep only the last 10 messages
-            to_remove = messages[:-10]  # All except last 10
-            return {"messages": [RemoveMessage(id=m.id) for m in to_remove]}
-        else:
+        if len(messages) <= 10:
             return {"messages": messages}
+
+        # Keep only the last 10 messages and update the state in-place to reflect
+        # the removal.  We return a copy of the truncated list so downstream
+        # consumers never see ``RemoveMessage`` instructions which previously
+        # triggered ``ValueError`` while iterating over the conversation history.
+        truncated_messages = list(messages[-10:])
+        state["messages"] = truncated_messages
+        return {"messages": truncated_messages}
 
     def rewrite(self, state: AgentState) -> dict:
         """
@@ -79,7 +83,7 @@ class QuestionRewriter:
         """
 
         conversation = state["messages"][:-1] if len(state["messages"]) > 1 else []
-        #conversation = self.delete_messages(state=state)["messages"]
+        conversation = self.delete_messages(state=state)["messages"]
 
         current_question = state["question"].content
         conversation.insert(

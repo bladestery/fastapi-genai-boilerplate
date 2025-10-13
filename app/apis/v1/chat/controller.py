@@ -50,6 +50,27 @@ class ChatRoute:
         response_class=AppStreamingResponse,
         dependencies=[Depends(RateLimiter(times=5, seconds=60))],
     )
+    async def ask(
+        self,
+        request: Request,
+        question: str = Query(
+            description="The user's input question to be processed for cache, web search/rag retrieval, and answer generation."
+        ),
+        thread_id: str = Query(
+            description="Unique identifier for the chat thread to maintain context across requests."
+        ),
+    ) -> AppStreamingResponse:
+        """Stream chat tokens based on query parameters."""
+        chat_request = WebSearchChatRequest(question=question, thread_id=thread_id)
+        data = await self.service.ask_service(request_params=chat_request)
+
+        return AppStreamingResponse(data_stream=data)
+
+    @router.get(
+        "/chat_websearch",
+        response_class=AppStreamingResponse,
+        dependencies=[Depends(RateLimiter(times=5, seconds=60))],
+    )
     async def chat_websearch(
         self,
         request: Request,

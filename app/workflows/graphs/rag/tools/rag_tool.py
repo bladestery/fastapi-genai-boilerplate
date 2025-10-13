@@ -4,12 +4,13 @@ from app import settings
 import asyncio
 from typing import Any, Sequence
 
-import httpx
-import json
 import ast
 from langchain_core.tools import BaseTool
 from loguru import logger
 from pydantic import Field
+import threading
+import time
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 
 from app import settings
 from app.database.session import async_session_factory
@@ -73,20 +74,68 @@ class RagTool(BaseTool):
             msg = "GOOGLE_GENAI_API_KEY must be configured to use RagTool."
             raise ValueError(msg)
 
-        self._client = client
         self._owns_client = client is None
-        self._vector_service = vector_service or _create_vector_service()
         self._genai_service = client or _create_genai_service()
+        self._client = self._genai_service
+        self._vector_service = vector_service or _create_vector_service()
         self._service = _create_rag_service(
             client=self._genai_service,
             vector_service=self._vector_service,
             default_top_k=self.top_k,
         )
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._loop_thread: threading.Thread | None = None
+        self._loop_lock = threading.Lock()
+
+    def _ensure_loop(self) -> asyncio.AbstractEventLoop:
+        """Create (and if necessary start) a dedicated event loop for sync calls."""
+
+        with self._loop_lock:
+            if self._loop and self._loop.is_running():
+                return self._loop
+
+            loop = asyncio.new_event_loop()
+
+            def _run_loop() -> None:
+                asyncio.set_event_loop(loop)
+                loop.run_forever()
+
+            thread = threading.Thread(target=_run_loop, daemon=True)
+            thread.start()
+
+            self._loop = loop
+            self._loop_thread = thread
+
+            # Wait until the loop is running before returning.
+            while not loop.is_running():
+                time.sleep(0.001)
+
+            return loop
+
 
     def _run(self, query: str, top_k: int | None = None, **_: Any) -> dict[str, Any]:
         """Synchronous entry point that proxies to the async implementation."""
 
-        return asyncio.run(self._arun(query, top_k=top_k))
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            loop = self._ensure_loop()
+            future = asyncio.run_coroutine_threadsafe(
+                self._arun(query, top_k=top_k), loop
+            )
+            try:
+                return future.result(timeout=settings.RAG_EMBEDDING_TIMEOUT)
+            except FuturesTimeoutError as exc:  # pragma: no cover - defensive
+                future.cancel()
+                msg = "RAG tool execution timed out."
+                logger.exception(msg)
+                raise RuntimeError(msg) from exc
+        else:  # pragma: no cover - defensive
+            msg = (
+                "RagTool._run cannot be invoked from within a running event loop. "
+                "Use the asynchronous interface (ainvoke) instead."
+            )
+            raise RuntimeError(msg)
 
     async def _arun(
         self, query: str, top_k: int | None = None, **_: Any
@@ -128,10 +177,20 @@ class RagTool(BaseTool):
     async def aclose(self) -> None:
         """Close the underlying HTTP client if owned by the tool."""
 
-        if self._owns_client:
+        if self._owns_client and hasattr(self._client, "aclose"):
             await self._client.aclose()
 
+        loop = self._loop
+        thread = self._loop_thread
+        if loop and loop.is_running():
+            loop.call_soon_threadsafe(loop.stop)
+            if thread:
+                await asyncio.to_thread(thread.join)
+            loop.close()
+            self._loop = None
+            self._loop_thread = None
 
+            
 # Create the Rag search tool instance
 RAG_TOOL: BaseTool = RagTool(
     max_results=settings.RAG_MAX_RESULTS
