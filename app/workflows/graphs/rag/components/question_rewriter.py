@@ -49,8 +49,11 @@ class QuestionRewriter:
             #    strict=True,
             #)
             from langchain_google_genai import ChatGoogleGenerativeAI
-            from google.auth import compute_engine
-            credentials = compute_engine.Credentials()
+            import google.auth
+
+            credentials, project = google.auth.default(
+                scopes=['https://www.googleapis.com/auth/cloud-platform', 'https://generativelanguage.googleapis.com']
+            )
 
             self.llm = ChatGoogleGenerativeAI(
                 model=LLMModelMap.QUESTION_REWRITER,
