@@ -48,18 +48,31 @@ class QuestionRewriter:
             #    schema=RefinedQueryResult,
             #    strict=True,
             #)
-            from langchain_google_genai import ChatGoogleGenerativeAI
 
-            self.llm = ChatGoogleGenerativeAI(
-                model=LLMModelMap.QUESTION_REWRITER,
+            # from langchain_google_genai import ChatGoogleGenerativeAI
+
+            # self.llm = ChatGoogleGenerativeAI(
+            #    model=LLMModelMap.QUESTION_REWRITER,
+            #    temperature=0,
+            #    max_tokens=None,
+            #    timeout=None,
+            #    max_retries=2,
+            # ).with_structured_output(
+            #    schema=RefinedQueryResult,
+            #    strict=True,
+            # )
+            from langchain_google_vertexai import ChatVertexAI
+
+            self.llm = ChatVertexAI(
+                # pick a Vertex Gemini model available in your region, e.g.:
+                model=LLMModelMap.QUESTION_REWRITER,   # or "gemini-2.5-pro"
                 temperature=0,
                 max_tokens=None,
-                timeout=None,
                 max_retries=2,
-                # other params...
             ).with_structured_output(
                 schema=RefinedQueryResult,
-                strict=True,
+                strict=True
+                # optional: include_raw=True, method="json_mode"
             )
 
     @staticmethod

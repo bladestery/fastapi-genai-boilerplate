@@ -30,15 +30,25 @@ class AnswerGenerator:
             #    api_key=SecretStr(settings.OPENAI_API_KEY),
             #)
 
-            from langchain_google_genai import ChatGoogleGenerativeAI
+            # from langchain_google_genai import ChatGoogleGenerativeAI
 
-            self.llm = ChatGoogleGenerativeAI(
-                model=LLMModelMap.ANSWER_GENERATOR,
+            # self.llm = ChatGoogleGenerativeAI(
+            #     model=LLMModelMap.ANSWER_GENERATOR,
+            #     temperature=0,
+            #     max_tokens=None,
+            #     timeout=None,
+            #     max_retries=2,
+            #     # other params...
+            # )
+
+            from langchain_google_vertexai import ChatVertexAI
+
+            self.llm = ChatVertexAI(
+                # pick a Vertex Gemini model available in your region, e.g.:
+                model=LLMModelMap.ANSWER_GENERATOR,   # or "gemini-2.5-pro"
                 temperature=0,
                 max_tokens=None,
-                timeout=None,
                 max_retries=2,
-                # other params...
             )
 
     def generate(self, state: AgentState) -> dict[str, list[AIMessage]]:

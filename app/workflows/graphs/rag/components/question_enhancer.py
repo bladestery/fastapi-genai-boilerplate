@@ -39,18 +39,32 @@ class QuestionEnhancer:
             #    schema=EnhancedQuestionsResult,
             #    strict=True,
             #)
-            from langchain_google_genai import ChatGoogleGenerativeAI
+            # from langchain_google_genai import ChatGoogleGenerativeAI
 
-            self.llm = ChatGoogleGenerativeAI(
-                model=LLMModelMap.QUESTION_ENHANCER,
+            # self.llm = ChatGoogleGenerativeAI(
+            #     model=LLMModelMap.QUESTION_ENHANCER,
+            #     temperature=0,
+            #     max_tokens=None,
+            #     timeout=None,
+            #     max_retries=2,
+            #     # other params...
+            # ).with_structured_output(
+            #     schema=EnhancedQuestionsResult,
+            #     strict=True,
+            # )
+
+            from langchain_google_vertexai import ChatVertexAI
+
+            self.llm = ChatVertexAI(
+                # pick a Vertex Gemini model available in your region, e.g.:
+                model=LLMModelMap.QUESTION_ENHANCER,   # or "gemini-2.5-pro"
                 temperature=0,
                 max_tokens=None,
-                timeout=None,
                 max_retries=2,
-                # other params...
             ).with_structured_output(
                 schema=EnhancedQuestionsResult,
-                strict=True,
+                strict=True
+                # optional: include_raw=True, method="json_mode"
             )
 
     def enhance(self, state: AgentState) -> dict:

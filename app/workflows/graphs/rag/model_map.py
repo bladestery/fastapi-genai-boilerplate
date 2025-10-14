@@ -6,6 +6,6 @@ import enum
 class LLMModelMap(str, enum.Enum):
     """Enum mapping specific agent tasks to their respective LLM model identifiers."""
 
-    QUESTION_REWRITER = "gemini-2.5-flash"
-    QUESTION_ENHANCER = "gemini-2.5-flash"
-    ANSWER_GENERATOR = "gemini-2.5-flash"
+    QUESTION_REWRITER = "gemini-2.5-pro"
+    QUESTION_ENHANCER = "gemini-2.5-pro"
+    ANSWER_GENERATOR = "gemini-2.5-pro"
