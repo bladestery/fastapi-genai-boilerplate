@@ -53,20 +53,6 @@ class QuestionEnhancer:
                 strict=True,
             )
 
-            # from langchain_google_vertexai import ChatVertexAI
-
-            # self.llm = ChatVertexAI(
-            #     # pick a Vertex Gemini model available in your region, e.g.:
-            #     model=LLMModelMap.QUESTION_ENHANCER,   # or "gemini-2.5-pro"
-            #     temperature=0,
-            #     max_tokens=None,
-            #     max_retries=2,
-            # ).with_structured_output(
-            #     schema=EnhancedQuestionsResult,
-            #     strict=True
-            #     # optional: include_raw=True, method="json_mode"
-            # )
-
     def enhance(self, state: AgentState) -> dict:
         """
         Enhances a question into multiple standalone questions for better web search coverage.
