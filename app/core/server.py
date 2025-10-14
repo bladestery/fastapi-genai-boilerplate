@@ -58,8 +58,8 @@ def build_app() -> FastAPI:
         title="FastAPI Boilerplate",
         description="FastAPI project template.",
         version=settings.RELEASE_VERSION,
-        docs_url=None if settings.ENVIRONMENT == "production" else "/docs",
-        redoc_url=None if settings.ENVIRONMENT == "production" else "/redoc",
+        docs_url="/docs",
+        redoc_url="/redoc",
         middleware=configure_middleware(),
         lifespan=lifespan,
     )
