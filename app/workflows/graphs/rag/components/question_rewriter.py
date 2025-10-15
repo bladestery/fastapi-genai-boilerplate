@@ -48,12 +48,8 @@ class QuestionRewriter:
             #    schema=RefinedQueryResult,
             #    strict=True,
             #)
-            from langchain_google_genai import ChatGoogleGenerativeAI
             import google.auth
-
-            credentials, project = google.auth.default(
-                scopes=['https://www.googleapis.com/auth/cloud-platform', 'https://generativelanguage.googleapis.com']
-            )
+            from langchain_google_genai import ChatGoogleGenerativeAI
 
             self.llm = ChatGoogleGenerativeAI(
                 model=LLMModelMap.QUESTION_REWRITER,
@@ -62,6 +58,7 @@ class QuestionRewriter:
                 timeout=None,
                 max_retries=2,
                 # other params...
+                credentials=credentials,
             ).with_structured_output(
                 schema=RefinedQueryResult,
                 strict=True,
