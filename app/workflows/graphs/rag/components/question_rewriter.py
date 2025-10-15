@@ -13,7 +13,6 @@ from ..states import AgentState
 
 from ..prompts import QUESTION_REWRITER_PROMPT
 from .vertex_gemini_client import VertexGeminiClient
-import google.auth
 
 
 class RefinedQueryResult(BaseModel):
@@ -65,15 +64,10 @@ class QuestionRewriter:
             #     schema=RefinedQueryResult,
             #     strict=True,
             # )
-            credentials, _ = google.auth.default(
-                scopes=[
-                    "https://www.googleapis.com/auth/cloud-platform",
-                    "https://www.googleapis.com/auth/generative-language",
-                ]
-            )
+
             self.llm = VertexGeminiClient(
                 model=LLMModelMap.QUESTION_REWRITER.value,
-                temperature=0.0,
+                temperature=0.0
             )
 
     @staticmethod

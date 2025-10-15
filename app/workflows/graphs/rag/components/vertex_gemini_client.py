@@ -11,6 +11,7 @@ from google.genai.types import Content, GenerateContentConfig, Part, Schema
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from loguru import logger
 from pydantic import BaseModel, ValidationError
+from google.cloud import aiplatform_v1
 
 from app import settings
 
@@ -46,8 +47,7 @@ class VertexGeminiClient:
         self.top_p = top_p
         self._client = genai.Client(
             vertexai=True,
-            project=settings.PROJECT_ID or None,
-            location=settings.REGION or None,
+            api_key=settings.GOOGLE_GENAI_API_KEY
         )
 
     def invoke(self, messages: list[BaseMessage], *, stream: bool = False) -> str:
