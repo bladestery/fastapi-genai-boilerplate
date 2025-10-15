@@ -12,6 +12,7 @@ from ..model_map import LLMModelMap
 from ..states import AgentState
 
 from ..prompts import QUESTION_REWRITER_PROMPT
+from .vertex_gemini_client import VertexGeminiClient
 
 
 class RefinedQueryResult(BaseModel):
@@ -48,20 +49,25 @@ class QuestionRewriter:
             #    schema=RefinedQueryResult,
             #    strict=True,
             #)
-            import google.auth
-            from langchain_google_genai import ChatGoogleGenerativeAI
 
-            self.llm = ChatGoogleGenerativeAI(
-                model=LLMModelMap.QUESTION_REWRITER,
-                temperature=0,
-                max_tokens=None,
-                timeout=None,
-                max_retries=2,
-                # other params...
-                credentials=credentials,
-            ).with_structured_output(
-                schema=RefinedQueryResult,
-                strict=True,
+            # from langchain_google_genai import ChatGoogleGenerativeAI
+
+            # self.llm = ChatGoogleGenerativeAI(
+            #     model=LLMModelMap.QUESTION_REWRITER,
+            #     temperature=0,
+            #     max_tokens=None,
+            #     timeout=None,
+            #     max_retries=2,
+            #     # other params...
+            #     credentials=credentials,
+            # ).with_structured_output(
+            #     schema=RefinedQueryResult,
+            #     strict=True,
+            # )
+
+            self.llm = VertexGeminiClient(
+                model=LLMModelMap.QUESTION_REWRITER.value,
+                temperature=0.0,
             )
 
     @staticmethod
@@ -121,9 +127,12 @@ class QuestionRewriter:
                 require_tripitika=require_tripitika
             )
         else:
-            rephrase_prompt = ChatPromptTemplate.from_messages(conversation)
-            response_data = (rephrase_prompt | self.llm).invoke({})
-            response = RefinedQueryResult.model_validate(response_data)
+            # rephrase_prompt = ChatPromptTemplate.from_messages(conversation)
+            # response_data = (rephrase_prompt | self.llm).invoke({})
+            # response = RefinedQueryResult.model_validate(response_data)
+            response = self.llm.invoke_structured(
+                conversation, schema=RefinedQueryResult
+            )
 
         refined_question = response.refined_question
         require_enhancement = response.require_enhancement

@@ -13,6 +13,7 @@ from ..local_model_client import LocalModelClient
 from ..model_map import LLMModelMap
 from ..prompts import RAG_PROMPT, SYSTEM_PROMPT
 from ..states import AgentState
+from .vertex_gemini_client import VertexGeminiClient
 
 
 class AnswerGenerator:
@@ -30,15 +31,20 @@ class AnswerGenerator:
             #    api_key=SecretStr(settings.OPENAI_API_KEY),
             #)
 
-            from langchain_google_genai import ChatGoogleGenerativeAI
+            # from langchain_google_genai import ChatGoogleGenerativeAI
 
-            self.llm = ChatGoogleGenerativeAI(
-                model=LLMModelMap.ANSWER_GENERATOR,
-                temperature=0,
-                max_tokens=None,
-                timeout=None,
-                max_retries=2,
-                # other params...
+            # self.llm = ChatGoogleGenerativeAI(
+            #     model=LLMModelMap.ANSWER_GENERATOR,
+            #     temperature=0,
+            #     max_tokens=None,
+            #     timeout=None,
+            #     max_retries=2,
+            #     # other params...
+            # )
+
+            self.llm = VertexGeminiClient(
+                model=LLMModelMap.ANSWER_GENERATOR.value,
+                temperature=0.0,
             )
 
     def generate(self, state: AgentState) -> dict[str, list[AIMessage]]:
@@ -87,9 +93,10 @@ class AnswerGenerator:
         if settings.USE_LOCAL_MODEL:
             answer_content = self.llm.invoke(conversation)
         else:
-            prompt = ChatPromptTemplate.from_messages(conversation)
-            answer = self.llm.invoke(prompt.format())
-            answer_content = answer.content
+            # prompt = ChatPromptTemplate.from_messages(conversation)
+            # answer = self.llm.invoke(prompt.format())
+            # answer_content = answer.content
+            answer_content = self.llm.invoke(conversation)
 
         logger.info(f"Final Answer Generated:\n{answer_content}")
 
