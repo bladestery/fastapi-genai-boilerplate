@@ -29,7 +29,8 @@ def _create_vector_service() -> PgVectorService:
 def _create_genai_service() -> genai.client.AsyncClient:
     """Instantiate the PGVector service layer."""
     client = genai.Client(
-        vertexai=True, project=settings.PROJECT_ID, location=settings.REGION
+        vertexai=True,
+        api_key=settings.GOOGLE_GENAI_API_KEY
     )
     return client
 
